@@ -1,0 +1,43 @@
+@url_dev = http://localhost:3010/v1/api
+@accessToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NTcyNDE4MjFlM2EyZjY4NDFiMDdhMmMiLCJlbWFpbCI6InRlc3Q5QGdtYWlsLmNvbSIsImlhdCI6MTcwMjQ3NjM1OSwiZXhwIjoxNzAyNjQ5MTU5fQ.5yCzleT4MDjUZYtW0FTo72mpcPo2oo9mT2HC_oOuz6M
+@userId = 657241821e3a2f6841b07a2c
+@apiKey = b6978370f03fe98bb4f280dc141b1ae2e0acff093965996f61aeee3bcc28c5c33f9254349838e91f3edd1a98b831dd7e5d6ee899e9dd0e36b8c6a32aba1b146a
+
+### signup
+POST {{url_dev}}/shop/signup
+Content-Type: application/json
+X-API-Key: {{apiKey}}
+
+{
+  "name": "Kim gia",
+  "email": "test9@gmail.com",
+  "password": "123"
+}
+
+### login
+POST {{url_dev}}/shop/login
+Content-Type: application/json
+X-API-Key: {{apiKey}}
+
+{
+  "email": "test9@gmail.com",
+  "password": "123"
+}
+
+### logout
+POST {{url_dev}}/shop/logout
+Content-Type: application/json
+X-API-Key: {{apiKey}}
+X-Client-ID: {{userId}}
+Authorization: {{accessToken}}
+
+### refresh token
+POST {{url_dev}}/shop/refresh-token
+Content-Type: application/json
+X-API-Key: {{apiKey}}
+X-Client-ID: {{userId}}
+Authorization: {{accessToken}}
+
+{
+  "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NTcyNDE4MjFlM2EyZjY4NDFiMDdhMmMiLCJlbWFpbCI6InRlc3Q5QGdtYWlsLmNvbSIsImlhdCI6MTcwMjQ3NjM1OSwiZXhwIjoxNzAzMDgxMTU5fQ.2DDoCbdK3vPOuB9q3_h06g2leJ-BSEtiioHxtFSJ2po"
+}
