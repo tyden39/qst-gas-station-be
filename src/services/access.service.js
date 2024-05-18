@@ -1,102 +1,101 @@
 'use strict'
 
-const shopModel = require('../models/shop.model')
+const User = require('../models/user.model')
 const bcrypt = require('bcrypt')
 const crypto = require('crypto')
 const KeyTokenService = require('./keyToken.service')
 const { createTokens, verifyJWT, createTokenPair } = require('../auth/authUtils')
 const { getInfoData } = require('../utils')
 const { BadRequestError, NotFoundError, UnauthorizedError, ForbiddenError } = require('../core/error.response')
-const {findByEmail} = require('./shop.service')
-const { default: mongoose } = require('mongoose')
+const {findByEmail} = require('./user.service')
 
-const roleShop = {
-  SHOP: '00001',
-  WRITER: '00002',
-  EDITOR: '00003',
-  ADMIN: '00004',
+const roleUser = {
+  ADMIN: '00001',
+  STORE_ADMIN: '00002',
+  READ: '00003',
+  WRITE: '00004',
 }
 
 class AccessService {
-  static handleRefreshToken = async ({refreshToken}) => {
-    const foundTokenUsed = await KeyTokenService.findByPropertyName('refreshTokenUsed', refreshToken)
+  // static handleRefreshToken = async ({refreshToken}) => {
+  //   const foundTokenUsed = await KeyTokenService.findByPropertyName('refreshTokenUsed', refreshToken)
 
-    if (foundTokenUsed) {
-      const {privateKey, publicKey} = foundTokenUsed
-      const { userId, email } = verifyJWT(refreshToken, privateKey)
-      // console.log(userId, email)
-      console.log(await KeyTokenService.removeKeyById({user: new mongoose.Types.ObjectId(userId)}))
-      throw new ForbiddenError('Something wrong happen! Please re-login!')
-    }
+  //   if (foundTokenUsed) {
+  //     const {privateKey, publicKey} = foundTokenUsed
+  //     const { userId, email } = verifyJWT(refreshToken, privateKey)
+  //     // console.log(userId, email)
+  //     // console.log(await KeyTokenService.removeKeyById({user: new mongoose.Types.ObjectId(userId)}))
+  //     throw new ForbiddenError('Something wrong happen! Please re-login!')
+  //   }
 
-    const holderToken = await KeyTokenService.findByPropertyName('refreshToken', refreshToken, false)
-    if (!holderToken) throw new UnauthorizedError('Shop is not registered')
+  //   const holderToken = await KeyTokenService.findByPropertyName('refreshToken', refreshToken, false)
+  //   if (!holderToken) throw new UnauthorizedError('User is not registered')
 
-    const { userId, email } = verifyJWT(refreshToken, holderToken.privateKey)
+  //   const { userId, email } = verifyJWT(refreshToken, holderToken.privateKey)
 
-    const foundShop = await findByEmail({email})
-    if (!foundShop) throw new UnauthorizedError('Shop is not registered')
+  //   const foundUser = await findByEmail({email})
+  //   if (!foundUser) throw new UnauthorizedError('User is not registered')
 
-    const tokens = await createTokenPair({userId, email}, holderToken.publicKey, holderToken.privateKey)
+  //   const tokens = await createTokenPair({userId, email}, holderToken.publicKey, holderToken.privateKey)
 
-    await holderToken.updateOne({
-      $set: {
-        refreshToken: tokens.refreshToken
-      },
-      $addToSet: {
-        refreshTokenUsed: refreshToken
-      }
-    })
+  //   await holderToken.updateOne({
+  //     $set: {
+  //       refreshToken: tokens.refreshToken
+  //     },
+  //     $addToSet: {
+  //       refreshTokenUsed: refreshToken
+  //     }
+  //   })
 
-    return {
-      user: {userId, email},
-      tokens
-    }
-  }
+  //   return {
+  //     user: {userId, email},
+  //     tokens
+  //   }
+  // }
 
   static logout = async ({ keyStore }) => {
-    return await KeyTokenService.removeKeyById(keyStore._id)
+    return await KeyTokenService.removeKeyById(keyStore.id)
   }
 
   static login = async ({email, password, refreshToken = null}) => {
     // check email
-    const foundShop = await findByEmail({email})
-    if(!foundShop) throw new UnauthorizedError('Shop not registered!')
+    const foundUser = await findByEmail({email})
+    if(!foundUser) throw new UnauthorizedError('User not registered!')
 
     // check password
-    const passwordMatch = await bcrypt.compare(password, foundShop.password)
+    const passwordMatch = await bcrypt.compare(password, foundUser.password)
     if (!passwordMatch) throw new UnauthorizedError('Invalid password')
     
     // create token
-    const tokens = await createTokens({shop: foundShop})
+    const tokens = await createTokens({user: foundUser})
 
     return {
-      user: getInfoData({fields: ['_id', 'name', 'email'], object: foundShop}),
+      user: getInfoData({fields: ['id', 'name', 'email'], object: foundUser}),
       tokens
     }
   }
 
   static signUp = async ({ name, email, password }) => {
-    const holderShop = await shopModel.findOne({ email }).lean() // why don't use service (current is model)
-    if (holderShop) {
-      throw new BadRequestError('Error: Shop already registed!')
+    const holderUser = await User.findOne({ where: {email} }) // why don't use service (current is model)
+    if (holderUser) {
+      throw new BadRequestError('Error: User already registed!')
     }
 
     const passwordHash = await bcrypt.hash(password, 10)
-    const newShop = await shopModel.create({
+    const newUser = await User.create({
       name,
       email,
       password: passwordHash,
-      roles: [roleShop.SHOP],
+      roles: JSON.stringify([roleUser.ADMIN]),
     })
 
-    if (newShop) {
-      const tokens = await createTokens({shop: newShop})
+    if (newUser) {
+      const tokens = await createTokens({user: newUser})
 
       return {
-        shop: getInfoData({
-          fields: ['_id', 'email', 'name'],
-          object: newShop,
+        user: getInfoData({
+          fields: ['id', 'email', 'name'],
+          object: newUser,
         }),
         tokens,
       }

@@ -1,8 +1,9 @@
 const sequelize = require("../dbs/init.database")
-const { DataTypes } = require("sequelize")
+const { DataTypes, Model } = require("sequelize")
 
-const ApiKey = sequelize.define(
-  "Apikey",
+class ApiKey extends Model {}
+
+ApiKey.init(
   {
     key: {
       type: DataTypes.STRING,
@@ -10,18 +11,20 @@ const ApiKey = sequelize.define(
       unique: true,
     },
     status: {
-      type: Boolean,
+      type: DataTypes.BOOLEAN,
       default: true,
     },
     permissions: {
-      type: [String],
+      type: DataTypes.STRING,
       allowNull: false,
       enum: ["0000", "1111", "2222"],
     },
   },
   {
+    sequelize,
+    modelName: "ApiKey",
+    tableName: "apikeys",
     timestamps: true,
-    tableName: "Apikeys",
   }
 )
 

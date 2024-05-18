@@ -1,37 +1,33 @@
-'use strict'
+const sequelize = require("../dbs/init.database")
+const { Model, DataTypes } = require("sequelize")
 
-const { Schema, model } = require('mongoose') // Erase if already required
+class KeyToken extends Model {}
 
-const DOCUMENT_NAME = 'Key'
-const COLLECTION_NAME = 'Keys'
+KeyToken.init(
+  {
+    user: {
+      type: DataTypes.INTEGER,
+      allowNull: false
+    },
+    accessToken: {
+      type: DataTypes.TEXT,
+      allowNull: false,
+    },
+    refreshToken: {
+      type: DataTypes.TEXT,
+      allowNull: false,
+    },
+    refreshTokenUsed: {
+      type: DataTypes.JSON,
+      defaultValue: []
+    },
+  },
+  {
+    sequelize,
+    modelName: "TokenKey",
+    tableName: "token_keys",
+    timestamps: true,
+  }
+)
 
-// Declare the Schema of the Mongo model
-var keyTokenSchema = new Schema({
-  user: {
-    type: Schema.Types.ObjectId,
-    required: true,
-    ref: 'Shop'
-  },
-  publicKey: {
-    type: String,
-    required: true
-  },
-  privateKey: {
-    type: String,
-    required: true
-  },
-  refreshTokenUsed: {
-    type: Array,
-    default: []
-  },
-  refreshToken: {
-    type: String,
-    require: true
-  },
-}, {
-  timestamps: true,
-  collection: COLLECTION_NAME
-})
-
-//Export the model
-module.exports = model(DOCUMENT_NAME, keyTokenSchema)
+module.exports = KeyToken

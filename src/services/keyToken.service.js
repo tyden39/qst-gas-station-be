@@ -1,43 +1,45 @@
-const { Types } = require('mongoose')
-const keytokenModel = require('../models/keytoken.model')
+const KeyToken = require("../models/keytoken.model")
 
 class KeyTokenService {
-  static createKeyToken = async ({ userId, privateKey, publicKey, refreshToken }) => {
+  static createKeyToken = async ({ userId, accessToken, refreshToken }) => {
     try {
-      const filter = { user: userId },
-            update = { publicKey, privateKey, refreshtokenUsed: [], refreshToken},
-            option = { upsert: true, new: true} 
-
-      const tokens = await keytokenModel.findOneAndUpdate(filter, update, option)
-      return tokens ? tokens : null
+      const [tokens] = await KeyToken.upsert(
+        {
+          user: userId,
+          refreshtokenUsed: [],
+          refreshToken,
+          accessToken,
+        },
+        {
+          returning: true,
+        }
+      )
+      return tokens
+        ? { accessToken: tokens.accessToken, refreshToken: tokens.refreshToken }
+        : null
     } catch (error) {
       return error
     }
   }
 
-  static findByPropertyName = async (propName, value, lean = true) => {
+  static findByPropertyName = async (propName, value) => {
     let propValue
     switch (propName) {
-      case 'user':
-        propValue = new Types.ObjectId(value)
-        break;
-    
       default:
         propValue = value
-        break;
+        break
     }
 
     const condition = {}
     condition[propName] = propValue
 
-    const keyToken = keytokenModel.findOne(condition)
-    if (lean)
-      return await keyToken.lean()
-    return await keyToken
+    const keyToken = await KeyToken.findOne({ where: condition })
+
+    return keyToken
   }
 
   static removeKeyById = async (id) => {
-    return await keytokenModel.deleteMany(id)
+    return await KeyToken.destroy({ where: { id }, force: true })
   }
 }
 

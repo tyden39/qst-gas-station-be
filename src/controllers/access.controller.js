@@ -8,9 +8,6 @@ class AccessController {
     new CREATED({
       message: "Registered OK!",
       data: await AccessService.signUp(req.body),
-      options: {
-        limit: 10,
-      },
     }).send(res)
   }
   

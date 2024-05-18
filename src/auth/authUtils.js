@@ -1,80 +1,75 @@
-'use strict'
+"use strict"
 
-const JWT = require('jsonwebtoken')
-const crypto = require('crypto')
-const KeyTokenService = require('../services/keyToken.service')
-const { BadRequestError, NotFoundError, UnauthorizedError } = require('../core/error.response')
-const asyncHandler = require('../helpers/asyncHandler')
+const JWT = require("jsonwebtoken")
+const crypto = require("crypto")
+const KeyTokenService = require("../services/keyToken.service")
+const {
+  BadRequestError,
+  NotFoundError,
+  UnauthorizedError,
+} = require("../core/error.response")
+const asyncHandler = require("../helpers/asyncHandler")
+const {
+  app: { publicKey, privateKey },
+} = require("../configs/config.server")
 
 const HEADER = {
-  CLIENT_ID: 'x-client-id',
-  AUTHORIZATION:  'authorization'
+  CLIENT_ID: "x-client-id",
+  AUTHORIZATION: "authorization",
 }
 
-const createTokenPair = async (payload, publicKey, privateKey) => {
+const createTokenPair = async (payload) => {
   try {
     // JWT.sign is not async function why use await?
-    const accessToken = await JWT.sign(payload, publicKey, {
-      expiresIn: '2 days',
+    const accessToken = await JWT.sign(payload, privateKey, {
+      algorithm: "RS256",
     })
 
     const refreshToken = await JWT.sign(payload, privateKey, {
-      expiresIn: '7 days',
+      algorithm: "RS256",
     })
 
     JWT.verify(accessToken, publicKey, (err, decode) => {
       if (err) {
         console.error(`JWT verify error::`, err)
       } else {
-        console.log(`JWT verify::`, 'success')
+        // console.log(`JWT verify::`, "success")
       }
     })
-    
+
     return { accessToken, refreshToken }
   } catch (error) {
-    console.log('createTokenPair error::', error.message)
+    console.log("createTokenPair error::", error.message)
   }
 }
 
-const createTokens = async ({shop}) => {
-  const userId = shop._id
+const createTokens = async ({ user }) => {
+  const userId = user.id
 
-  const privateKey = crypto.randomBytes(64).toString('hex')
-  const publicKey = crypto.randomBytes(64).toString('hex')
+  const tokens = await createTokenPair({ userId, email: user.email })
 
-  // create token pair
-  const tokens = await createTokenPair(
-    { userId, email: shop.email },
-    publicKey,
-    privateKey
-  )
-  // console.log(`Token created successfully::`, tokens)
-
-  await KeyTokenService.createKeyToken({
+  const saveTokens = await KeyTokenService.createKeyToken({
+    accessToken: tokens.accessToken,
     refreshToken: tokens.refreshToken,
-    privateKey,
-    publicKey,
-    userId
+    userId,
   })
 
-  return tokens
+  return saveTokens
 }
 
 const authentication = asyncHandler(async (req, res, next) => {
-  // check X-Client-ID
-  const userId = req.headers[HEADER.CLIENT_ID]
-  if(!userId) throw new BadRequestError('Invalid Request')
-
-  // check keytoken 
-  const keyStore = await KeyTokenService.findByPropertyName('user', userId)
-  if (!keyStore) throw new NotFoundError('Not found KeyStore')
-
-  const accessToken = req.headers[HEADER.AUTHORIZATION]
-  if (!accessToken) throw new UnauthorizedError('Invalid token')
-
   try {
-    const decodeUser = JWT.verify(accessToken, keyStore.publicKey)
-    if (userId !== decodeUser.userId) throw new UnauthorizedError('Invalid UserId')
+    const accessToken = req.headers[HEADER.AUTHORIZATION]
+    if (!accessToken) throw new UnauthorizedError("Invalid token")
+
+    const decodeUser = JWT.verify(accessToken, publicKey, { algorithms: ['RS256'] })
+
+    const keyStore = await KeyTokenService.findByPropertyName(
+      "user",
+      decodeUser.userId
+    )
+    if (!keyStore) throw new NotFoundError("Invalid token")
+
     req.keyStore = keyStore
     return next()
   } catch (error) {
