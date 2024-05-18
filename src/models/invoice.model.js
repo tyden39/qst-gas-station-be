@@ -74,7 +74,7 @@ Invoice.init(
   }
 )
 
-Invoice.belongsTo(Store, { foreignKey: "Store_ID", targetKey: 'Store_ID' })
-Store.hasMany(Invoice, { foreignKey: "Store_ID", sourceKey: 'Store_ID' })
+Invoice.belongsTo(Store)
+Store.hasMany(Invoice)
 
 module.exports = Invoice

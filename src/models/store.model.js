@@ -12,17 +12,11 @@ Store.init(
     },
     Store_ID: {
       type: DataTypes.STRING,
-      primaryKey: true,
       unique: true
     },
     name: {
       type: DataTypes.STRING,
       allowNull: false,
-    },
-    subTaxCode: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      unique: true,
     },
   },
   {
@@ -33,6 +27,7 @@ Store.init(
   }
 )
 
-Store.belongsTo(SubTax, { foreignKey: "subTaxCode", targetKey: 'subTaxCode' })
+Store.belongsTo(SubTax)
+SubTax.hasMany(Store)
 
 module.exports = Store

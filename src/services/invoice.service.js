@@ -1,4 +1,4 @@
-const Invoice = require("../models/Invoice.model")
+const Invoice = require("../models/invoice.model")
 
 class InvoiceService {
   async createInvoice(data) {

@@ -25,7 +25,7 @@ KeyToken.init(
   {
     sequelize,
     modelName: "TokenKey",
-    tableName: "token_keys",
+    tableName: "tokenkeys",
     timestamps: true,
   }
 )

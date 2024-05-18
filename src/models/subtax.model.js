@@ -1,7 +1,6 @@
 const sequelize = require("../dbs/init.database")
 const { Model, DataTypes } = require("sequelize")
 const User = require("./user.model")
-const Store = require("./store.model")
 
 class SubTax extends Model {}
 
@@ -16,22 +15,17 @@ SubTax.init(
       type: DataTypes.STRING,
       allowNull: false,
       unique: true,
-      primaryKey: true
-    },
-    taxCode: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
+    }
   },
   {
     sequelize,
     modelName: "SubTax",
-    tableName: "sub_taxs",
+    tableName: "subtaxs",
     timestamps: true,
   }
 )
 
-SubTax.hasMany(Store, { foreignKey: "subTaxCode", sourceKey: 'subTaxCode' })
-SubTax.belongsTo(User, { foreignKey: "taxCode", targetKey: 'taxCode' })
+User.hasMany(SubTax)
+SubTax.belongsTo(User)
 
 module.exports = SubTax

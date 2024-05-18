@@ -1,6 +1,5 @@
 const sequelize = require("../dbs/init.database")
 const { Model, DataTypes } = require("sequelize")
-const SubTax = require("./subtax.model")
 
 class User extends Model {}
 
@@ -54,7 +53,5 @@ User.init(
     timestamps: true,
   }
 )
-
-User.hasMany(SubTax, {foreignKey: 'taxCode', sourceKey: 'taxCode'})
 
 module.exports = User
