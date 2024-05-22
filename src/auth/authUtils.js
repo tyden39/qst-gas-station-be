@@ -9,9 +9,7 @@ const {
   UnauthorizedError,
 } = require("../core/error.response")
 const asyncHandler = require("../helpers/asyncHandler")
-const {
-  app: { publicKey, privateKey },
-} = require("../configs/config.server")
+const fs = require('fs');
 
 const HEADER = {
   CLIENT_ID: "x-client-id",
@@ -19,6 +17,9 @@ const HEADER = {
 }
 
 const createTokenPair = async (payload) => {
+
+  const publicKey = await fs.readFileSync('./public.pem', 'utf8');
+  const privateKey = await fs.readFileSync('./private.pem', 'utf8');
   try {
     // JWT.sign is not async function why use await?
     const accessToken = await JWT.sign(payload, privateKey, {
@@ -44,9 +45,12 @@ const createTokenPair = async (payload) => {
 }
 
 const createTokens = async ({ user }) => {
+
+  const publicKey = await fs.readFileSync('./public.pem', 'utf8');
+  const privateKey = await fs.readFileSync('./private.pem', 'utf8');
   const userId = user.id
 
-  const tokens = await createTokenPair({ userId, email: user.email })
+  const tokens = await createTokenPair({ userId, username: user.username })
 
   const saveTokens = await KeyTokenService.createKeyToken({
     accessToken: tokens.accessToken,
@@ -59,6 +63,9 @@ const createTokens = async ({ user }) => {
 
 const authentication = asyncHandler(async (req, res, next) => {
   try {
+
+    const publicKey = await fs.readFileSync('./public.pem', 'utf8');
+    const privateKey = await fs.readFileSync('./private.pem', 'utf8');
     const accessToken = req.headers[HEADER.AUTHORIZATION]
     if (!accessToken) throw new UnauthorizedError("Invalid token")
 

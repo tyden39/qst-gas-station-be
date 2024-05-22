@@ -12,7 +12,7 @@ const sequelize = new Sequelize(name, user, password, {
     acquire: 30000,
     idle: 10000
   },
-  logging: false
+  logging: true
 })
 
 module.exports = sequelize

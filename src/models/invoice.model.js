@@ -9,11 +9,11 @@ Invoice.init(
     id: {
       type: DataTypes.UUID,
       defaultValue: DataTypes.UUIDV4,
-      primaryKey: true,
+      primaryKey: true
     },
-    Store_ID: {
-      type: DataTypes.UUID,
-      defaultValue: DataTypes.UUIDV4,
+    Pump_ID: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
     },
     Logger_ID: {
       type: DataTypes.STRING,
@@ -22,23 +22,17 @@ Invoice.init(
     Check_Key: {
       type: DataTypes.STRING,
       allowNull: false,
-      unique: true,
-    },
-    Logger_Time: {
-      type: DataTypes.DATE,
-      allowNull: false,
-    },
-    Pump_ID: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-    },
-    Bill_No: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      unique: true,
+      unique: {
+        name: 'unique_check_key',
+        msg: 'duplicate Check Key'
+    }
     },
     Bill_Type: {
       type: DataTypes.INTEGER,
+      allowNull: false,
+    },
+    Logger_Time: {
+      type: DataTypes.DATE,
       allowNull: false,
     },
     Fuel_Type: {
@@ -54,7 +48,7 @@ Invoice.init(
       allowNull: false,
     },
     Unit_Price: {
-      type: DataTypes.DECIMAL(9, 3),
+      type: DataTypes.DECIMAL(9, 0),
       allowNull: false,
     },
     Quantity: {
@@ -62,7 +56,7 @@ Invoice.init(
       allowNull: false,
     },
     Total_Price: {
-      type: DataTypes.DECIMAL(16, 3),
+      type: DataTypes.DECIMAL(18, 3),
       allowNull: false,
     },
   },
@@ -74,7 +68,7 @@ Invoice.init(
   }
 )
 
-Invoice.belongsTo(Store)
-Store.hasMany(Invoice)
+// Invoice.belongsTo(Store, {foreignKey: 'Logger_ID'})
+// Store.hasMany(Invoice, {foreignKey: 'Logger_ID'})
 
 module.exports = Invoice

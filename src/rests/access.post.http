@@ -1,16 +1,16 @@
 @url_dev = http://localhost:3010/v1/api
-@accessToken = eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImVtYWlsIjoidGVzdDlAZ21haWwuY29tIiwiaWF0IjoxNzE1ODgwMDIzLCJleHAiOjE3MTY0ODQ4MjN9.pt7Y4oKxT9SX8nz7SDnt95RHJ5ZUgVMil74j2qI4y_XGcTXdqb3KPB1Pxf8H6jTX2mIibUEYRuDFufuaewOeoaGk4pwis_A3Z7WCqelF04vnwgL8BLUtK-FNysi16Gct6HKmvmORasc3rkbMvKaJEbFXrnHhp_nrpLQQEFJVfqru1ubjdnjfjzMYakI0JK_CAhUjOb6wIOEaSW7A_X8qFDlJlJz3p1q2nR_mak3x6X-b4ShXcSicAhJcifkmv1TuyxHfnxW1JWHWxbLrEG1WsfRS3ODhArYTOmcV5Kg-Oluu6F6--j51fN4JFIqiSmFhDo-7prN8Wz0HziuV8hHulQ
+# @url_dev = https://api.gongka.online/v1/api
+@accessToken = eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI0ZDY0MTBjMS03ZjE4LTQxY2QtODc1Ni05Yzg1ZGU2NWFjYzMiLCJ1c2VybmFtZSI6ImFkbWluIiwiaWF0IjoxNzE2MTcxNTA2fQ.dSnYKxkZNSIDZaBp85Y2gz8UdRGPaRExgcdixiRaSo57X--BZh7DqBuwLeq6TffdUZIKh1cKUYilzZcUbyi400DM1v9lahH_zPMmhGZ5KcmgTmgxKHyh0N8OuejqsZyovZbK9IUWRu0KHfINmnQehK-NSDj-KWnpB4FL7QKw2DOghhJzgxTQvURgOSD0ZszeZSmuyeoBDTLuIlcROICvXtUqk60lIsdhnPS8w0xtKBKD-0kTmeuPc2jMe-QhLw6ZlVFT7BAA71ckgqLcNcj47JgpRchS-wa-IcxHRo_QGSyKhnvphvITA5lxwTN2lMLM05f1KzohAMjVSrC4_b3h3Q
 @userId = 657241821e3a2f6841b07a2c
 @apiKey = b6978370f03fe98bb4f280dc141b1ae2e0acff093965996f61aeee3bcc28c5c33f9254349838e91f3edd1a98b831dd7e5d6ee899e9dd0e36b8c6a32aba1b146a
 
 ### signup
 POST {{url_dev}}/signup
 Content-Type: application/json
-X-API-Key: {{apiKey}}
 
 {
-  "name": "admin",
-  "email": "test@gmail.com",
+  "username": "admin",
+  "fullname": "Administrator",
   "password": "123"
 }
 
@@ -20,7 +20,7 @@ Content-Type: application/json
 X-API-Key: {{apiKey}}
 
 {
-  "email": "test9@gmail.com",
+  "username": "admin",
   "password": "123"
 }
 
@@ -29,7 +29,7 @@ POST {{url_dev}}/logout
 Content-Type: application/json
 X-API-Key: {{apiKey}}
 X-Client-ID: {{userId}}
-Authorization: eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImVtYWlsIjoidGVzdDlAZ21haWwuY29tIiwiaWF0IjoxNzE1ODgxMDAwLCJleHAiOjE3MTU4ODEwMDF9.bWyDPJw9pHzbmCCGG55vC0Ljh5kHkKU8BUoFeRJhD3a9t2V_T3F93rwYgicDveKauNDq3QO-JVVSh2HGd2-MNIGGfkY0lcdfTF_i3UG5uF_RI6C-kOi672PgGk1VBszyvBsMzGeydGn2dRpTTDtFGT0bThv5ZIg3xTd36ac8Y9sonfdOGHBcAV0ybmEDkG7zhiYwE11NWNnOw-wBu73vpz8qoozc1BKmSQbkLzJOWD26kCOAy6MfXM17QTmJwyfAHu9lpKlaKULI92iT5SWSkLIKrxoEPIuDAT7MXU6gCDMRDnEuvOpufltw1NHf0mR6R46NeVjzK6Wp_tvjQqCeaw
+Authorization: {{accessToken}}
 
 ### refresh token
 POST {{url_dev}}/refresh-token
@@ -41,3 +41,53 @@ Authorization: {{accessToken}}
 {
   "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NTcyNDE4MjFlM2EyZjY4NDFiMDdhMmMiLCJlbWFpbCI6InRlc3Q5QGdtYWlsLmNvbSIsImlhdCI6MTcwMjQ3NjM1OSwiZXhwIjoxNzAzMDgxMTU5fQ.2DDoCbdK3vPOuB9q3_h06g2leJ-BSEtiioHxtFSJ2po"
 }
+
+### import invoice
+POST {{url_dev}}/invoice/import
+Content-Type: application/json
+X-API-Key: {{apiKey}}
+X-Client-ID: {{userId}}
+Authorization: {{accessToken}}
+
+{
+  "Logger_ID": "01905969501",
+  "Check_Key": "T00R00K155528140524",
+  "Logger_Time": "14-05-2024 15-55-28",
+  "Pump_ID": 0,
+  "Bill_No": 23,
+  "Bill_Type": 1,
+  "Fuel_Type": "XĂNG RON 95 - III",
+  "Start_Time": "12-04-2024 16-51-21",
+  "End_Time": "12-04-2024 16-52-50",
+  "Unit_Price": 25740,
+  "Quantity": 0.545,
+  "Total_Price": 14020
+}
+
+### get invoices
+GET {{url_dev}}/invoice/list
+Content-Type: application/json
+# X-API-Key: {{apiKey}}
+# X-Client-ID: {{userId}}
+Authorization: {{accessToken}}
+
+### get invoice
+GET {{url_dev}}/invoice/23/01905969501
+Content-Type: application/json
+X-API-Key: {{apiKey}}
+X-Client-ID: {{userId}}
+Authorization: {{accessToken}}
+
+### edit invoices
+POST {{url_dev}}/invoice/43d48534-64e3-44a6-afc5-4cc506e100f3
+Content-Type: application/json
+X-API-Key: {{apiKey}}
+X-Client-ID: {{userId}}
+Authorization: {{accessToken}}
+
+### delete invoices
+DELETE  {{url_dev}}/invoice/43d48534-64e3-44a6-afc5-4cc506e100f3
+Content-Type: application/json
+X-API-Key: {{apiKey}}
+X-Client-ID: {{userId}}
+Authorization: {{accessToken}}

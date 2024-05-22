@@ -6,7 +6,7 @@ class KeyToken extends Model {}
 KeyToken.init(
   {
     user: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.UUID,
       allowNull: false
     },
     accessToken: {

@@ -1,5 +1,7 @@
 const sequelize = require("../dbs/init.database")
 const { Model, DataTypes } = require("sequelize")
+const Branch = require("./branch.model")
+const Company = require("./company.model")
 
 class User extends Model {}
 
@@ -10,31 +12,33 @@ User.init(
       defaultValue: DataTypes.UUIDV4,
       primaryKey: true,
     },
-    taxCode: {
-      type: DataTypes.STRING,
-      allowNull: true,
-      unique: true,
-    },
     username: {
       type: DataTypes.STRING,
       allowNull: false,
       unique: true,
     },
-    fullname: {
+    password: {
       type: DataTypes.STRING,
       allowNull: false,
     },
+    firstName: {
+      type: DataTypes.STRING,
+      // allowNull: false,
+    },
+    lastName: {
+      type: DataTypes.STRING,
+      // allowNull: false,
+    },
     email: {
       type: DataTypes.STRING,
-      allowNull: false,
       unique: true,
       validate: {
         isEmail: true,
       },
     },
-    password: {
+    phone: {
       type: DataTypes.STRING,
-      allowNull: false,
+      unique: true,
     },
     status: {
       type: DataTypes.ENUM,
@@ -43,7 +47,21 @@ User.init(
     },
     roles: {
       type: DataTypes.JSON,
-      defaultValue: []
+      defaultValue: [],
+    },
+    branchId: {
+      type: DataTypes.UUID,
+      references: {
+        model: Branch,
+        key: "id",
+      },
+    },
+    companyId: {
+      type: DataTypes.UUID,
+      references: {
+        model: Company,
+        key: "id",
+      },
     },
   },
   {
@@ -53,5 +71,10 @@ User.init(
     timestamps: true,
   }
 )
+
+User.belongsTo(Branch, { foreignKey: "branchId", onDelete: "SET NULL" })
+User.belongsTo(Company, { foreignKey: "companyId", onDelete: "SET NULL" })
+Company.hasMany(User, { foreignKey: "companyId" })
+Branch.hasMany(User, { foreignKey: "branchId" })
 
 module.exports = User

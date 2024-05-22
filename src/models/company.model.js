@@ -1,20 +1,19 @@
 const sequelize = require("../dbs/init.database")
 const { Model, DataTypes } = require("sequelize")
-const Branch = require("./branch.model")
+// const User = require("./user.model")
 
-class Store extends Model {}
+class Company extends Model {}
 
-Store.init(
+Company.init(
   {
     id: {
-      type: DataTypes.STRING,
-      allowNull: false,
+      type: DataTypes.UUID,
+      defaultValue: DataTypes.UUIDV4,
       primaryKey: true,
-      unique: true
     },
     name: {
       type: DataTypes.STRING,
-      allowNull: false,
+      allowNull: false
     },
     address: {
       type: DataTypes.STRING,
@@ -23,23 +22,25 @@ Store.init(
       type: DataTypes.STRING,
       unique: true,
       validate: {
-        isEmail: true
+        isEmail: true,
       }
     },
     phone: {
       type: DataTypes.STRING,
       unique: true,
     },
+    taxCode: {
+      type: DataTypes.STRING,
+      // allowNull: false,
+      // unique: true,
+    }
   },
   {
     sequelize,
-    modelName: "Store",
-    tableName: "stores",
+    modelName: "Company",
+    tableName: "companies",
     timestamps: true,
   }
 )
 
-Store.belongsTo(Branch)
-Branch.hasMany(Store)
-
-module.exports = Store
+module.exports = Company

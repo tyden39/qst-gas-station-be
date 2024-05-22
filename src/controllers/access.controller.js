@@ -22,12 +22,12 @@ class AccessController {
     }).send(res)
   }
 
-  refreshToken = async (req, res, next) => {
-    new OK({
-      message: 'Refresh success',
-      data: await AccessService.handleRefreshToken(req.body)
-    }).send(res)
-  }
+  // refreshToken = async (req, res, next) => {
+  //   new OK({
+  //     message: 'Refresh success',
+  //     data: await AccessService.handleRefreshToken(req.body)
+  //   }).send(res)
+  // }
 }
 
 module.exports = new AccessController()

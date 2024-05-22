@@ -1,13 +1,7 @@
-const fs = require('fs');
-
-const publicKey = fs.readFileSync('./public.pem', 'utf8');
-const privateKey = fs.readFileSync('./private.pem', 'utf8');
 
 const dev = {
   app: {
     port: process.env.DEV_APP_PORT || 3010,
-    publicKey,
-    privateKey
   },
   db: {
     host: process.env.DEV_DB_HOST || 'localhost',

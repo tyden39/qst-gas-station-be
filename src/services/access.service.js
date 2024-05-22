@@ -7,7 +7,7 @@ const KeyTokenService = require('./keyToken.service')
 const { createTokens, verifyJWT, createTokenPair } = require('../auth/authUtils')
 const { getInfoData } = require('../utils')
 const { BadRequestError, NotFoundError, UnauthorizedError, ForbiddenError } = require('../core/error.response')
-const {findByEmail} = require('./user.service')
+const {findByUsername: findByEmail} = require('./user.service')
 
 const roleUser = {
   ADMIN: '00001',
@@ -22,8 +22,8 @@ class AccessService {
 
   //   if (foundTokenUsed) {
   //     const {privateKey, publicKey} = foundTokenUsed
-  //     const { userId, email } = verifyJWT(refreshToken, privateKey)
-  //     // console.log(userId, email)
+  //     const { userId, username } = verifyJWT(refreshToken, privateKey)
+  //     // console.log(userId, username)
   //     // console.log(await KeyTokenService.removeKeyById({user: new mongoose.Types.ObjectId(userId)}))
   //     throw new ForbiddenError('Something wrong happen! Please re-login!')
   //   }
@@ -31,12 +31,12 @@ class AccessService {
   //   const holderToken = await KeyTokenService.findByPropertyName('refreshToken', refreshToken, false)
   //   if (!holderToken) throw new UnauthorizedError('User is not registered')
 
-  //   const { userId, email } = verifyJWT(refreshToken, holderToken.privateKey)
+  //   const { userId, username } = verifyJWT(refreshToken, holderToken.privateKey)
 
-  //   const foundUser = await findByEmail({email})
+  //   const foundUser = await findByusername({username})
   //   if (!foundUser) throw new UnauthorizedError('User is not registered')
 
-  //   const tokens = await createTokenPair({userId, email}, holderToken.publicKey, holderToken.privateKey)
+  //   const tokens = await createTokenPair({userId, username}, holderToken.publicKey, holderToken.privateKey)
 
   //   await holderToken.updateOne({
   //     $set: {
@@ -48,7 +48,7 @@ class AccessService {
   //   })
 
   //   return {
-  //     user: {userId, email},
+  //     user: {userId, username},
   //     tokens
   //   }
   // }
@@ -57,9 +57,9 @@ class AccessService {
     return await KeyTokenService.removeKeyById(keyStore.id)
   }
 
-  static login = async ({email, password, refreshToken = null}) => {
-    // check email
-    const foundUser = await findByEmail({email})
+  static login = async ({username, password, refreshToken = null}) => {
+    // check username
+    const foundUser = await findByEmail({username})
     if(!foundUser) throw new UnauthorizedError('User not registered!')
 
     // check password
@@ -70,23 +70,24 @@ class AccessService {
     const tokens = await createTokens({user: foundUser})
 
     return {
-      user: getInfoData({fields: ['id', 'name', 'email'], object: foundUser}),
+      user: getInfoData({fields: ['id', 'fullname', 'username'], object: foundUser}),
       tokens
     }
   }
 
-  static signUp = async ({ name, email, password }) => {
-    const holderUser = await User.findOne({ where: {email} }) // why don't use service (current is model)
+  static signUp = async ({ username, fullname, password, taxCode, email, status, roles }) => {
+    const holderUser = await User.findOne({ where: {username} }) // why don't use service (current is model)
     if (holderUser) {
       throw new BadRequestError('Error: User already registed!')
     }
 
     const passwordHash = await bcrypt.hash(password, 10)
     const newUser = await User.create({
-      name,
-      email,
+      fullname,
+      username,
       password: passwordHash,
-      roles: JSON.stringify([roleUser.ADMIN]),
+      taxCode, email, status,
+      roles: roles ?? JSON.stringify([roleUser.ADMIN]),
     })
 
     if (newUser) {
@@ -94,7 +95,7 @@ class AccessService {
 
       return {
         user: getInfoData({
-          fields: ['id', 'email', 'name'],
+          fields: ['id', 'email', 'fullname'],
           object: newUser,
         }),
         tokens,
