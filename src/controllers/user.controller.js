@@ -19,16 +19,31 @@ class UserController {
   }
 
   getUser = async (req, res, next) => {
+    console.log(req.params)
     new OK({
       message: 'Get user success!',
-      data: await UserService.getUserById(req.params)
+      data: await UserService.getUserById(req.params.id)
     }).send(res)
   }
 
   updateUser = async (req, res, next) => {
     new OK({
       message: 'Update user success!',
-      data: await UserService.updateUser(req.body)
+      data: await UserService.updateUser(req.params.id, req.body)
+    }).send(res)
+  }
+
+  createUser = async (req, res, next) => {
+    new CREATED({
+      message: 'Update user success!',
+      data: await UserService.createUser(req.body)
+    }).send(res)
+  }
+
+  deleteUser = async (req, res, next) => {
+    new OK({
+      message: 'Delete user success!',
+      data: await UserService.deleteUser(req.params.id)
     }).send(res)
   }
 }

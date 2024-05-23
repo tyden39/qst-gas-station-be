@@ -37,7 +37,7 @@ class InvoiceService {
     return invoice
   }
 
-  static async getInvoices({query}) {
+  static async getInvoices({query, selectAll}) {
     const { keyword, startDate, endDate } = query
     const billType = +query.billType
     const fuelType = +query.fuelType
@@ -83,7 +83,7 @@ class InvoiceService {
 
     const { count, rows: invoices } = await Invoice.findAndCountAll({
       where,
-      limit: pageSize,
+      limit: selectAll ? null : pageSize,
       offset: offset,
       order: [['Logger_Time', 'DESC']]
     })

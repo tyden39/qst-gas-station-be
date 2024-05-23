@@ -32,9 +32,6 @@ User.init(
     email: {
       type: DataTypes.STRING,
       unique: true,
-      validate: {
-        isEmail: true,
-      },
     },
     phone: {
       type: DataTypes.STRING,

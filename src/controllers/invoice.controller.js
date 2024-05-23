@@ -28,7 +28,7 @@ class InvoiceController {
   }
 
   exportExcel = async (req, res, next) => {
-    const exportInvoices = await InvoiceService.getInvoices(req)
+    const {data: exportInvoices} = await InvoiceService.getInvoices({query: req.query, selectAll: true})
 
     const workbook = new excelJS.Workbook(); 
     const worksheet = workbook.addWorksheet("Invoices");

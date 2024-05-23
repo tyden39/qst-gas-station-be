@@ -9,7 +9,9 @@ const router = express.Router()
 // router.use(authentication)
 
 router.get('/user/list', asyncHandler(userController.getUsers))
-router.get('/user/:id/:storeId', asyncHandler(userController.getUser))
+router.get('/user/:id', asyncHandler(userController.getUser))
 router.post('/user/edit/:id', asyncHandler(userController.updateUser))
+router.post('/user/create', asyncHandler(userController.createUser))
+router.delete('/user/delete/:id', asyncHandler(userController.deleteUser))
 
 module.exports = router

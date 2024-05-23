@@ -12,6 +12,8 @@ const Invoice = require("./models/invoice.model")
 const cors = require("cors")
 const app = express()
 
+//eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI1M2I3MDQzYi1iMTUyLTRmZDEtODNmZS1kNDI0OWIyMDU0OTMiLCJ1c2VybmFtZSI6ImFkbWluIiwiaWF0IjoxNzE2NDQyNDc5fQ.O8bqvYj5jXU2qyzJLN9d07MRRol5lclhAxsUD7hSR16MSot8o49KUsJZZCc-icytUHKSrsP5CsV7KYuIGVRI63x8-8WyYsApG1yHQsbYyWVBoL_sGadydIkfyeWvi8Y7gv4QhQFWc2Ds01e2Yhd_uLmFMV5_BVE1pD-JtxMwFfqwi7rvFpP0wf-yRMXeS_TKiwno8QV5v9XDz5L_tF-VEbUN08Npj95ngH_U-0LYdg4yVD6nQH9EJQ9-Gj0VjUXuw5fY2AxhX-Gh8CIbUrxOh-gFA7Ec3mLKoM_tjMwiWTiq2633HzfSdvFlLt6jQWrLqS7zyl1P1w_P0f1sxYTinQ
+
 // middlewares
 // app.use(morgan('dev'))
 app.use(helmet())

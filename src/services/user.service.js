@@ -2,6 +2,7 @@ const { Op, Sequelize } = require("sequelize")
 const User = require("../models/user.model")
 const Branch = require("../models/branch.model")
 const Company = require("../models/company.model")
+const { NotFoundError } = require("../core/error.response")
 
 class UserService {
   static findByUsername = async ({ username }) => {
@@ -60,6 +61,7 @@ class UserService {
       offset: offset,
       order: [["createdAt", "DESC"]],
       attributes: [
+        "id",
         "username",
         "firstName",
         "lastName",
@@ -89,7 +91,7 @@ class UserService {
   static async updateUser(id, data) {
     const user = await User.findByPk(id)
     if (!user) {
-      throw new Error("User not found")
+      throw new NotFoundError("User not found")
     }
     return await user.update(data)
   }
@@ -97,7 +99,7 @@ class UserService {
   static async deleteUser(id) {
     const user = await User.findByPk(id)
     if (!user) {
-      throw new Error("User not found")
+      throw new NotFoundError("User not found")
     }
     await User.destroy({ where: { id }, force: true })
   }
