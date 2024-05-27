@@ -1,6 +1,6 @@
-@url_dev = http://localhost:3010/v1/api
-# @url_dev = https://api.gongka.online/v1/api
-@accessToken = eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI1MTY4MjZiYy01ZmEwLTQxOWQtODU3NS1kMzNjMTBlMWEwODMiLCJ1c2VybmFtZSI6ImFkbWluIiwiaWF0IjoxNzE2Mzk5MjU5fQ.d4BPOiEOlDvXFzCJD9MWaqbT8-Z6n5AKrCvFiXUX8Yj8kbsiuTfNJC2qQ62LUmBU8hWyyzG5hhxi0fWUqMRYIDJaMVjRHEk_nJNidrQIixY-hbthutRkvQ5YtvwTfTGVvsBo3xTOFuo6T58zb4UXORLd-yghm1bPSW0gj0R9GpKe0skYlg3kXPKT32S1W-QAf8XuJf2fxaNzWqWq9zjIFoV8fDwOCTIV7KwoADBMHgM_fEWY4wwmkU7lJxQLmjelKcL28XxWyMeA0dv3qvJHYfCd_Z3p4iGnY4SyTfqmtSHXCYPT0e8y0EeC57iRwQieQyk0-PksH5sJP8IYrCr-Qg
+# @url_dev = http://localhost:3010/v1/api
+@url_dev = https://api.qspeco.com/v1/api
+@accessToken = eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIzMzc2M2Q4MS02ZGI5LTQwODItODE3NC02ZDIxOWJlOWIxNDciLCJ1c2VybmFtZSI6ImFkbWluIiwiaWF0IjoxNzE2NTQ4MTA2fQ.RqXaJRqn48-dYdYXMk2Yn7T6HRq2BffRzCeExE44k3GTextEx54Vfocpn-lVrs78wocaquSWkY4t8i5uQiKtaqBiZHoU5jvV6-CnBPlcS7RhzMBbVu9Yh2M4kYuoA1oQOKWkGgIk9IRe9QzS_d3F22QZhUS_tBUkFrdzcBUYuOz66pWMjvP88Rt83lGDK1SmuwCxppSH9C5LYu5bJiaj51CwVoE7S4uj17WJ1BgCRyGREiyHHOSk2N4BRU7oi4twQ0GlzjdCG8U0cTxYPMeLDEgP0AfnVOjhu6YCUYyvWhMSEcsy9ZFQMMGoCeMz2pTKtJGKZj6_Op6JglUOC3GamA
 @userId = 657241821e3a2f6841b07a2c
 @apiKey = b6978370f03fe98bb4f280dc141b1ae2e0acff093965996f61aeee3bcc28c5c33f9254349838e91f3edd1a98b831dd7e5d6ee899e9dd0e36b8c6a32aba1b146a
 
@@ -43,7 +43,7 @@ Authorization: {{accessToken}}
 }
 
 ### import invoice
-POST {{url_dev}}/invoice/import
+POST {{url_dev}}https://api.qspeco.com/v1/api/invoice/import
 Content-Type: application/json
 X-API-Key: {{apiKey}}
 X-Client-ID: {{userId}}
@@ -51,7 +51,7 @@ Authorization: {{accessToken}}
 
 {
   "Logger_ID": "01905969501",
-  "Check_Key": "T00R00K155528140524",
+  "Check_Key": "T00R00K155628190524",
   "Logger_Time": "14-05-2024 15-55-28",
   "Pump_ID": 0,
   "Bill_No": 23,

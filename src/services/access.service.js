@@ -60,11 +60,11 @@ class AccessService {
   static login = async ({username, password, refreshToken = null}) => {
     // check username
     const foundUser = await findByEmail({username})
-    if(!foundUser) throw new UnauthorizedError('User not registered!')
+    if(!foundUser) throw new BadRequestError('Tên đăng nhập hoặc mật khẩu không đúng!')
 
     // check password
     const passwordMatch = await bcrypt.compare(password, foundUser.password)
-    if (!passwordMatch) throw new UnauthorizedError('Invalid password')
+    if (!passwordMatch) throw new BadRequestError('Tên đăng nhập hoặc mật khẩu không đúng!')
     
     // create token
     const tokens = await createTokens({user: foundUser})
