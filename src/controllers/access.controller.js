@@ -6,18 +6,21 @@ const AccessService = require("../services/access.service")
 class AccessController {
   signUp = async (req, res, next) => {
     new CREATED({
-      message: "Registered OK!",
+      message: "Đăng ký thành công!",
       data: await AccessService.signUp(req.body),
     }).send(res)
   }
   
   login = async (req, res, next) => {
-    new OK({ data: await AccessService.login(req.body) }).send(res)
+    new OK({ 
+      message: 'Đăng nhập thành công!',
+      data: await AccessService.login(req.body) 
+    }).send(res)
   }
 
   logout = async (req, res, next) => {
     new OK({
-      message: 'Logout success!',
+      message: 'Đăng xuất thành công!',
       data: await AccessService.logout(req)
     }).send(res)
   }

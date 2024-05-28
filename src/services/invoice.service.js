@@ -1,6 +1,9 @@
 const moment = require("moment")
 const Invoice = require("../models/invoice.model")
-const { BadRequestError, ConflictRequestError } = require("../core/error.response")
+const {
+  BadRequestError,
+  ConflictRequestError,
+} = require("../core/error.response")
 const { Op } = require("sequelize")
 const { FUEL_TYPE } = require("../constants/invoice/filter")
 
@@ -37,41 +40,56 @@ class InvoiceService {
     return invoice
   }
 
-  static async getInvoices({query, selectAll}) {
+  static async getInvoices({ query, selectAll }) {
     const { keyword, startDate, endDate } = query
     const billType = +query.billType
     const fuelType = +query.fuelType
-    const fuelTypeLabel = FUEL_TYPE.find(item => item.id === fuelType)?.label ?? ''
+    const fuelTypeLabel =
+      FUEL_TYPE.find((item) => item.id === fuelType)?.label ?? ""
     const pumpId = +query.pumpId
     const pageSize = +query.pageSize
     const page = +query.page
     const offset = (page - 1) * pageSize
-  
-    const keywordFilter = keyword ? {
-      [Op.or]: [
-        { id: { [Op.like]: `%${keyword}%` } },
-        { Logger_ID: { [Op.like]: `%${keyword}%` } },
-        { Check_Key: { [Op.like]: `%${keyword}%` } },
-      ]
-    } : {};
 
-    const dateFilter = startDate && endDate ? {
-      Logger_Time: {
-        [Op.between]: [new Date(startDate), new Date(endDate)]
-      }
-    } : {};
+    const keywordFilter = keyword
+      ? {
+          [Op.or]: [
+            { id: { [Op.like]: `%${keyword}%` } },
+            { Logger_ID: { [Op.like]: `%${keyword}%` } },
+            { Check_Key: { [Op.like]: `%${keyword}%` } },
+          ],
+        }
+      : {}
 
-    const billTypeFilter = billType >= 0 ? {
-      Bill_Type: billType
-    } : {};
+    const dateFilter =
+      startDate && endDate
+        ? {
+            Logger_Time: {
+              [Op.between]: [new Date(startDate), new Date(endDate)],
+            },
+          }
+        : {}
 
-    const fuelTypeFilter = fuelType >= 0 ? {
-      Fuel_Type: fuelTypeLabel
-    } : {};
-    const pumpIdFilter = pumpId >= 0 ? {
-      Pump_ID: pumpId
-    } : {};
-  
+    const billTypeFilter =
+      billType >= 0
+        ? {
+            Bill_Type: billType,
+          }
+        : {}
+
+    const fuelTypeFilter =
+      fuelType >= 0
+        ? {
+            Fuel_Type: fuelTypeLabel,
+          }
+        : {}
+    const pumpIdFilter =
+      pumpId >= 0
+        ? {
+            Pump_ID: pumpId,
+          }
+        : {}
+
     // Combine filters
     const where = {
       ...dateFilter,
@@ -79,13 +97,13 @@ class InvoiceService {
       ...billTypeFilter,
       ...fuelTypeFilter,
       ...pumpIdFilter,
-    };
+    }
 
     const { count, rows: invoices } = await Invoice.findAndCountAll({
       where,
       limit: selectAll ? null : pageSize,
       offset: offset,
-      order: [['Logger_Time', 'DESC']]
+      order: [["Logger_Time", "DESC"]],
     })
 
     const totalPages = Math.ceil(count / pageSize)
@@ -96,9 +114,19 @@ class InvoiceService {
         totalItems: count,
         totalPages,
         currentPage: page,
-        pageSize: pageSize
-      }
+        pageSize: pageSize,
+      },
     }
+  }
+
+  static async getInvoicesWithIds(ids) {
+    return await Invoice.findAll({
+      where: {
+        id: {
+          [Op.in]: ids,
+        },
+      },
+    })
   }
 
   static async updateInvoice(id, data) {

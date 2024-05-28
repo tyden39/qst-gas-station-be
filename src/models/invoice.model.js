@@ -22,10 +22,15 @@ Invoice.init(
     Check_Key: {
       type: DataTypes.STRING,
       allowNull: false,
+      primaryKey: true,
       unique: {
         name: 'unique_check_key',
         msg: 'duplicate Check Key'
     }
+    },
+    Bill_No: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
     },
     Bill_Type: {
       type: DataTypes.INTEGER,
