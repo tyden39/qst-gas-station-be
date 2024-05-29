@@ -1,14 +1,13 @@
 {
   "name": "ecommerce-backend",
   "version": "1.0.0",
-  "main": "server.js",
+  "main": "./api/index.js",
   "license": "MIT",
   "engines": {
     "node": "20.x"
   },
   "scripts": {
-    "start": "node --watch server.js",
-    "build": "node build server.js"
+    "start": "node --watch ./api/index.js"
   },
   "dependencies": {
     "bcrypt": "^5.1.1",
