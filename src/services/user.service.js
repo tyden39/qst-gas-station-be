@@ -18,7 +18,24 @@ class UserService {
   }
 
   static async getUserById(id) {
-    return await User.findByPk(id)
+    return await User.findOne({
+      where: { id },
+      attributes: [
+        "id",
+        "username",
+        "firstName",
+        "lastName",
+        "email",
+        "phone",
+        "roles",
+        "status",
+        "branchId",
+        "companyId",
+        [Sequelize.literal("`Branch`.`name`"), "branchName"],
+        [Sequelize.literal("`Company`.`name`"), "companyName"],
+      ],
+      include: [Branch, Company],
+    })
   }
 
   static async getUsers({ query }) {
@@ -89,9 +106,26 @@ class UserService {
   }
 
   static async updateUser(id, data) {
-    const user = await User.findByPk(id)
+    const user = await User.findOne({
+      where: { id },
+      attributes: [
+        "id",
+        "username",
+        "firstName",
+        "lastName",
+        "email",
+        "phone",
+        "roles",
+        "status",
+        "branchId",
+        "companyId",
+        [Sequelize.literal("`Branch`.`name`"), "branchName"],
+        [Sequelize.literal("`Company`.`name`"), "companyName"],
+      ],
+      include: [Branch, Company],
+    })
     if (!user) {
-      throw new NotFoundError("User not found")
+      throw new NotFoundError("Không tìm thấy người dùng")
     }
     return await user.update(data)
   }
@@ -99,7 +133,7 @@ class UserService {
   static async deleteUser(id) {
     const user = await User.findByPk(id)
     if (!user) {
-      throw new NotFoundError("User not found")
+      throw new NotFoundError("Không tìm thấy người dùng")
     }
     await User.destroy({ where: { id }, force: true })
   }

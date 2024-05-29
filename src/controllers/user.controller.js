@@ -19,7 +19,6 @@ class UserController {
   }
 
   getUser = async (req, res, next) => {
-    console.log(req.params)
     new OK({
       message: 'Get user success!',
       data: await UserService.getUserById(req.params.id)

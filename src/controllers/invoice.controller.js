@@ -10,7 +10,7 @@ class InvoiceController {
   importOneInvoice = async (req, res, next) => {
     new CREATED({
       message: "Import an invoice success!",
-      data: await InvoiceService.createInvoice(req.body),
+      data: await InvoiceService.importInvoice(req.body),
     }).send(res)
   }
 
@@ -63,10 +63,10 @@ class InvoiceController {
     ]
 
     // Add data to the worksheet
-    exportInvoices.forEach((invoice, index) => {
+    exportInvoices.forEach((invoice, index, array) => {
       const invoiceDateFormated = {
         ...invoice.toJSON(),
-        order: index,
+        order: array.length - index,
         Bill_Type: BILL_TYPES.find(item => item.value === invoice.Bill_Type).label || '',
         Logger_Time: moment(invoice.Logger_Time).format("DD-MM-YYYY HH:mm:ss"),
         Start_Time: moment(invoice.Start_Time).format("DD-MM-YYYY HH:mm:ss"),
@@ -92,7 +92,14 @@ class InvoiceController {
   updateInvoice = async (req, res, next) => {
     new OK({
       message: "Update invoice success!",
-      data: await InvoiceService.updateInvoice(req.body),
+      data: await InvoiceService.updateInvoice(req.params.id, req.body),
+    }).send(res)
+  }
+
+  deleteInvoice = async (req, res, next) => {
+    new OK({
+      message: 'Delete invoice success!',
+      data: await InvoiceService.deleteInvoice(req.params.id)
     }).send(res)
   }
 }

@@ -9,10 +9,11 @@ const router = express.Router()
 // router.use(authentication)
 
 router.post('/import', asyncHandler(invoiceController.importOneInvoice))
+router.post('/create', asyncHandler(invoiceController.importOneInvoice))
 router.get('/list', asyncHandler(invoiceController.getInvoices))
-router.get('/:id/:storeId', asyncHandler(invoiceController.getInvoice))
 router.post('/edit/:id', asyncHandler(invoiceController.updateInvoice))
-// router.post('/import-excel', asyncHandler(invoiceController.importExcel))
+router.delete('/delete/:id', asyncHandler(invoiceController.deleteInvoice))
 router.get('/export-excel', asyncHandler(invoiceController.exportExcel))
+router.get('/:id', asyncHandler(invoiceController.getInvoice))
 
 module.exports = router

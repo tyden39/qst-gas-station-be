@@ -9,6 +9,14 @@ const { FUEL_TYPE } = require("../constants/invoice/filter")
 
 class InvoiceService {
   static async createInvoice(data) {
+    try {
+      return await Invoice.create(data)
+    } catch (error) {
+      throw new ConflictRequestError(error.message)
+    }
+  }
+
+  static async importInvoice(data) {
     const loggerTimeDate = moment(
       data.Logger_Time,
       "DD-MM-YYYY HH:mm:ss"
@@ -32,11 +40,11 @@ class InvoiceService {
   }
 
   static async getInvoiceById(params) {
-    const { id, storeId } = params
+    const { id } = params
     const invoice = await Invoice.findOne({
-      where: { Bill_No: id, Logger_ID: storeId },
+      where: { Check_Key: id },
     })
-    if (!invoice) throw new BadRequestError(`Invoice ID ${id} not found!`)
+    if (!invoice) throw new BadRequestError(`Không tìm thấy hóa đơn mã #${id}!`)
     return invoice
   }
 
@@ -130,19 +138,16 @@ class InvoiceService {
   }
 
   static async updateInvoice(id, data) {
-    const invoice = await Invoice.findByPk(id)
-    if (!invoice) {
-      throw new Error("Invoice not found")
-    }
-    return await Invoice.update(data)
+    const invoice = await this.getInvoiceById({id})
+    return await invoice.update(data)
   }
 
   static async deleteInvoice(id) {
-    const Invoice = await Invoice.findByPk(id)
-    if (!Invoice) {
-      throw new Error("Invoice not found")
+    const invoice = await Invoice.findByPk(id)
+    if (!invoice) {
+      throw new Error(`Không tìm thấy hóa đơn mã #${id}`)
     }
-    return await Invoice.destroy()
+    return await invoice.destroy()
   }
 }
 
