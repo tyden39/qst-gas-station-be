@@ -551,7 +551,7 @@ sequelize
   .catch((error) => console.error("Unable to connect to the database:", error))
 
 const corsOptions = {
-  origin: "https://qst-gas-station-be.vercel.app",
+  origin: "http://localhost:3000",
   // methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
   credentials: true, // Enable CORS for cookies, authorization headers, etc.
   optionsSuccessStatus: 204, // Some legacy browsers choke on 204
