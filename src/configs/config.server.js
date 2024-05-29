@@ -25,7 +25,7 @@ const prod = {
   }
 }
 
-const config = { dev, prod }
+// const config = { dev, prod }
 const env = process.env.NODE_ENV || 'dev'
 
-module.exports = config[env]
+module.exports = env === 'dev' ? dev : prod
