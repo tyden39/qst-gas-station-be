@@ -1,6 +1,8 @@
 const sequelize = require("../dbs/init.database")
 const { Model, DataTypes } = require("sequelize")
 const Store = require("./store.model")
+const Branch = require("./branch.model")
+const Company = require("./company.model")
 
 class Invoice extends Model {}
 
@@ -64,6 +66,27 @@ Invoice.init(
       type: DataTypes.DECIMAL(18, 3),
       allowNull: false,
     },
+    storeId: {
+      type: DataTypes.UUID,
+      references: {
+        model: Branch,
+        key: "id",
+      },
+    },
+    branchId: {
+      type: DataTypes.UUID,
+      references: {
+        model: Branch,
+        key: "id",
+      },
+    },
+    companyId: {
+      type: DataTypes.UUID,
+      references: {
+        model: Company,
+        key: "id",
+      },
+    },
   },
   {
     sequelize,
@@ -73,7 +96,11 @@ Invoice.init(
   }
 )
 
-// Invoice.belongsTo(Store, {foreignKey: 'Logger_ID'})
-// Store.hasMany(Invoice, {foreignKey: 'Logger_ID'})
+Invoice.belongsTo(Store, { foreignKey: "storeId", onDelete: "SET NULL" })
+Store.hasMany(Invoice, { foreignKey: "storeId", onDelete: "SET NULL" })
+Invoice.belongsTo(Branch, { foreignKey: "branchId", onDelete: "SET NULL" })
+Branch.hasMany(Invoice, { foreignKey: "branchId", onDelete: "SET NULL" })
+Invoice.belongsTo(Company, { foreignKey: "companyId", onDelete: "SET NULL" })
+Company.hasMany(Invoice, { foreignKey: "companyId", onDelete: "SET NULL" })
 
 module.exports = Invoice

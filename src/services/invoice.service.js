@@ -6,6 +6,10 @@ const {
 } = require("../core/error.response")
 const { Op } = require("sequelize")
 const { FUEL_TYPE } = require("../constants/invoice/filter")
+const Branch = require("../models/branch.model")
+const Company = require("../models/company.model")
+const Store = require("../models/store.model")
+const UserService = require("./user.service")
 
 class InvoiceService {
   static async createInvoice(data) {
@@ -48,8 +52,10 @@ class InvoiceService {
     return invoice
   }
 
-  static async getInvoices({ query, selectAll }) {
-    const { keyword, startDate, endDate } = query
+  static async getInvoices({ query, selectAll, keyStore }) {
+    const authUser = (await UserService.getUserById(keyStore.user)).toJSON()
+
+    const { keyword, startDate, endDate, companyId, branchId, storeId } = query
     const billType = +query.billType
     const fuelType = +query.fuelType
     const fuelTypeLabel =
@@ -58,6 +64,24 @@ class InvoiceService {
     const pageSize = +query.pageSize
     const page = +query.page
     const offset = (page - 1) * pageSize
+
+    const companyFilter = authUser.companyId && ['000', '001', ]
+      ? { companyId: authUser.companyId }
+      : companyId
+      ? { companyId: companyId }
+      : {}
+
+    const branchFilter = authUser.branchId
+      ? { branchId: authUser.branchId }
+      : branchId
+      ? { branchId: branchId }
+      : {}
+
+    const storeFilter = authUser.storeId
+      ? { storeId: authUser.storeId }
+      : storeId
+      ? { storeId: storeId }
+      : {}
 
     const keywordFilter = keyword
       ? {
@@ -105,6 +129,9 @@ class InvoiceService {
       ...billTypeFilter,
       ...fuelTypeFilter,
       ...pumpIdFilter,
+      ...companyFilter,
+      ...branchFilter,
+      ...storeFilter,
     }
 
     const { count, rows: invoices } = await Invoice.findAndCountAll({
@@ -112,6 +139,7 @@ class InvoiceService {
       limit: selectAll ? null : pageSize,
       offset: offset,
       order: [["Logger_Time", "DESC"]],
+      include: [Store, Branch, Company],
     })
 
     const totalPages = Math.ceil(count / pageSize)
@@ -138,7 +166,7 @@ class InvoiceService {
   }
 
   static async updateInvoice(id, data) {
-    const invoice = await this.getInvoiceById({id})
+    const invoice = await this.getInvoiceById({ id })
     return await invoice.update(data)
   }
 

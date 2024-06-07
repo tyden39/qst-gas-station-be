@@ -49,7 +49,7 @@ Branch.init(
   }
 )
 
-Branch.belongsTo(Company, { foreignKey: 'companyId', targetKey: 'id' });
-Company.hasMany(Branch, { foreignKey: 'companyId', sourceKey: 'id' });
+Branch.belongsTo(Company, { foreignKey: 'companyId', targetKey: 'id', onDelete: "SET NULL" });
+Company.hasMany(Branch, { foreignKey: 'companyId', sourceKey: 'id', onDelete: "SET NULL" });
 
 module.exports = Branch

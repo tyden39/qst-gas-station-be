@@ -77,7 +77,7 @@ const authentication = asyncHandler(async (req, res, next) => {
     )
     if (!keyStore) throw new NotFoundError("Invalid token")
 
-    req.keyStore = keyStore
+    req.keyStore = keyStore.toJSON()
     return next()
   } catch (error) {
     throw error

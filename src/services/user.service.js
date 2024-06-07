@@ -3,6 +3,8 @@ const User = require("../models/user.model")
 const Branch = require("../models/branch.model")
 const Company = require("../models/company.model")
 const { NotFoundError } = require("../core/error.response")
+const bcrypt = require('bcrypt')
+const Store = require("../models/store.model")
 
 class UserService {
   static findByUsername = async ({ username }) => {
@@ -31,10 +33,12 @@ class UserService {
         "status",
         "branchId",
         "companyId",
+        "storeId",
+        [Sequelize.literal("`Store`.`name`"), "storeName"],
         [Sequelize.literal("`Branch`.`name`"), "branchName"],
         [Sequelize.literal("`Company`.`name`"), "companyName"],
       ],
-      include: [Branch, Company],
+      include: [Store, Branch, Company],
     })
   }
 
@@ -88,10 +92,12 @@ class UserService {
         "status",
         "branchId",
         "companyId",
+        "storeId",
+        [Sequelize.literal("`Store`.`name`"), "storeName"],
         [Sequelize.literal("`Branch`.`name`"), "branchName"],
         [Sequelize.literal("`Company`.`name`"), "companyName"],
       ],
-      include: [Branch, Company],
+      include: [Store, Branch, Company],
     })
 
     return {
@@ -106,6 +112,9 @@ class UserService {
   }
 
   static async updateUser(id, data) {
+    const password = data.password ? {password: await bcrypt.hash(data.password, 10)} : {}
+    const editUser = {...data, ...password}
+
     const user = await User.findOne({
       where: { id },
       attributes: [
@@ -119,15 +128,17 @@ class UserService {
         "status",
         "branchId",
         "companyId",
+        "storeId",
+        [Sequelize.literal("`Store`.`name`"), "storeName"],
         [Sequelize.literal("`Branch`.`name`"), "branchName"],
         [Sequelize.literal("`Company`.`name`"), "companyName"],
       ],
-      include: [Branch, Company],
+      include: [Store, Branch, Company],
     })
     if (!user) {
       throw new NotFoundError("Không tìm thấy người dùng")
     }
-    return await user.update(data)
+    return await user.update(editUser)
   }
 
   static async deleteUser(id) {

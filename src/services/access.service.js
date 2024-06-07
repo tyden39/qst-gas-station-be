@@ -70,7 +70,7 @@ class AccessService {
     const tokens = await createTokens({user: foundUser})
 
     return {
-      user: getInfoData({fields: ['id', 'fullname', 'username'], object: foundUser}),
+      user: getInfoData({fields: ['id', 'firstName', 'username', 'roles'], object: foundUser}),
       tokens
     }
   }

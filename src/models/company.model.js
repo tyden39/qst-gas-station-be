@@ -1,6 +1,5 @@
 const sequelize = require("../dbs/init.database")
 const { Model, DataTypes } = require("sequelize")
-// const User = require("./user.model")
 
 class Company extends Model {}
 
@@ -30,9 +29,7 @@ Company.init(
       unique: true,
     },
     taxCode: {
-      type: DataTypes.STRING,
-      // allowNull: false,
-      // unique: true,
+      type: DataTypes.STRING
     }
   },
   {

@@ -2,6 +2,7 @@ const sequelize = require("../dbs/init.database")
 const { Model, DataTypes } = require("sequelize")
 const Branch = require("./branch.model")
 const Company = require("./company.model")
+const Store = require("./store.model")
 
 class User extends Model {}
 
@@ -44,7 +45,13 @@ User.init(
     },
     roles: {
       type: DataTypes.JSON,
-      defaultValue: [],
+    },
+    storeId: {
+      type: DataTypes.UUID,
+      references: {
+        model: Store,
+        key: "id",
+      },
     },
     branchId: {
       type: DataTypes.UUID,
@@ -69,9 +76,11 @@ User.init(
   }
 )
 
-User.belongsTo(Branch, { foreignKey: "branchId", onDelete: "SET NULL" })
 User.belongsTo(Company, { foreignKey: "companyId", onDelete: "SET NULL" })
 Company.hasMany(User, { foreignKey: "companyId" })
+User.belongsTo(Branch, { foreignKey: "branchId", onDelete: "SET NULL" })
 Branch.hasMany(User, { foreignKey: "branchId" })
+User.belongsTo(Store, { foreignKey: "storeId", onDelete: "SET NULL" })
+Store.hasMany(User, { foreignKey: "storeId" })
 
 module.exports = User
