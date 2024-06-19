@@ -37,13 +37,6 @@ Store.init(
         key: "id",
       },
     },
-    companyId: {
-      type: DataTypes.UUID,
-      references: {
-        model: Company,
-        key: "id",
-      },
-    },
   },
   {
     sequelize,
@@ -55,7 +48,5 @@ Store.init(
 
 Store.belongsTo(Branch, { foreignKey: "branchId", onDelete: "SET NULL" })
 Branch.hasMany(Store, { foreignKey: "branchId", onDelete: "SET NULL" })
-Store.belongsTo(Company, { foreignKey: "companyId", onDelete: "SET NULL" })
-Company.hasMany(Store, { foreignKey: "companyId", onDelete: "SET NULL" })
 
 module.exports = Store

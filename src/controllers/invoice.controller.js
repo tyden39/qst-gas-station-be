@@ -38,6 +38,7 @@ class InvoiceController {
       const { data: invoicesWithFilter } = await InvoiceService.getInvoices({
         query: req.query,
         selectAll: true,
+        keyStore: req.keyStore
       })
       exportInvoices = invoicesWithFilter
     }

@@ -3,12 +3,25 @@ const Store = require("../models/store.model")
 const Branch = require("../models/branch.model")
 const Company = require("../models/company.model")
 const { NotFoundError } = require("../core/error.response")
-const bcrypt = require('bcrypt')
+const bcrypt = require("bcrypt")
+const UserService = require("./user.service")
+const {
+  getCompanyFilter,
+  getBranchFilter,
+  getStoreFilter,
+} = require("../utils/permission")
 
 class StoreService {
-
-  static async getAll({ query }) {
-    // const { keyword, startDate, endDate } = query
+  static async getSimpleList({ query, keyStore }) {
+    const authUser = (await UserService.getUserById(keyStore.user)).toJSON()
+    const {
+      // keyword, startDate, endDate,
+      companyId,
+      branchId,
+    } = query
+    const companyFilter = getCompanyFilter(authUser, companyId)
+    const branchFilter = getBranchFilter(authUser, branchId)
+    const storeFilter = getStoreFilter(authUser)
 
     // const pageSize = +query.pageSize
     // const page = +query.page
@@ -35,19 +48,29 @@ class StoreService {
     //     : {}
 
     // // Combine filters
-    // const where = {
-    //   ...dateFilter,
-    //   ...keywordFilter,
-    // }
+    const where = {
+      ...storeFilter,
+      // ...dateFilter,
+      // ...keywordFilter,
+    }
 
     const { count, rows } = await Store.findAndCountAll({
-      // where,
+      where,
       // limit: pageSize,
       // offset: offset,
       order: [["createdAt", "DESC"]],
-      attributes: [
-        "id",
-        "name",
+      attributes: ["id", "name", "branchId", [Sequelize.literal("`Branch->Company`.`id`"), "companyId"],],
+      include: [
+        {
+          model: Branch,
+          where: { ...branchFilter },
+          include: [
+            {
+              model: Company,
+              where: { ...companyFilter },
+            },
+          ],
+        },
       ],
     })
 
@@ -76,16 +99,29 @@ class StoreService {
         "phone",
         "address",
         "branchId",
-        "companyId",
         [Sequelize.literal("`Branch`.`name`"), "branchName"],
-        [Sequelize.literal("`Company`.`name`"), "companyName"],
+        [Sequelize.literal("`Branch->Company`.`name`"), "companyName"],
+        [Sequelize.literal("`Branch->Company`.`id`"), "companyId"],
       ],
-      include: [Branch, Company],
+      include: [
+        {
+          model: Branch,
+          attributes: [],
+          include: [
+            {
+              model: Company,
+              attributes: [],
+            },
+          ],
+        },
+      ],
     })
   }
 
-  static async getAll({ query }) {
-    const { keyword, startDate, endDate } = query
+  static async getAll({ query, keyStore }) {
+    const authUser = (await UserService.getUserById(keyStore.user)).toJSON()
+
+    const { keyword, startDate, endDate, companyId, branchId, storeId } = query
 
     const pageSize = +query.pageSize
     const page = +query.page
@@ -111,6 +147,10 @@ class StoreService {
           }
         : {}
 
+    const companyFilter = getCompanyFilter(authUser, companyId)
+    const branchFilter = getBranchFilter(authUser, branchId)
+    const storeFilter = getStoreFilter(authUser, storeId)
+
     // Combine filters
     const where = {
       ...dateFilter,
@@ -129,11 +169,24 @@ class StoreService {
         "phone",
         "address",
         "branchId",
-        "companyId",
         [Sequelize.literal("`Branch`.`name`"), "branchName"],
-        [Sequelize.literal("`Company`.`name`"), "companyName"],
+        [Sequelize.literal("`Branch->Company`.`name`"), "companyName"],
+        [Sequelize.literal("`Branch->Company`.`id`"), "companyId"],
       ],
-      include: [Branch, Company],
+      include: [
+        {
+          model: Branch,
+          attributes: [],
+          where: { ...branchFilter },
+          include: [
+            {
+              model: Company,
+              where: { ...companyFilter },
+              attributes: [],
+            },
+          ],
+        },
+      ],
     })
 
     return {
@@ -148,8 +201,10 @@ class StoreService {
   }
 
   static async update(id, data) {
-    const password = data.password ? {password: await bcrypt.hash(data.password, 10)} : {}
-    const editUser = {...data, ...password}
+    const password = data.password
+      ? { password: await bcrypt.hash(data.password, 10) }
+      : {}
+    const editUser = { ...data, ...password }
 
     const store = await Store.findOne({
       where: { id },
@@ -160,11 +215,7 @@ class StoreService {
         "phone",
         "address",
         "branchId",
-        "companyId",
-        [Sequelize.literal("`Branch`.`name`"), "branchName"],
-        [Sequelize.literal("`Company`.`name`"), "companyName"],
       ],
-      include: [Branch, Company],
     })
     if (!store) {
       throw new NotFoundError("Không tìm thấy cửa hàng cần chỉnh sửa!")

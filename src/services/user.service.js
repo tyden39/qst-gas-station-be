@@ -3,9 +3,27 @@ const User = require("../models/user.model")
 const Branch = require("../models/branch.model")
 const Company = require("../models/company.model")
 const { NotFoundError } = require("../core/error.response")
-const bcrypt = require('bcrypt')
+const bcrypt = require("bcrypt")
 const Store = require("../models/store.model")
+const { getCompanyFilter, getBranchFilter, getStoreFilter } = require("../utils/permission.v2")
 
+const getAllowRoles = (role) => {
+  switch (role) {
+    case "000":
+      return ["000", "001", "002", "003", "004"]
+    case "001":
+      return ["001", "002", "003", "004"]
+    case "002":
+      return ["002", "003", "004"]
+    case "003":
+      return ["003", "004"]
+    case "004":
+      return ["004"]
+
+    default:
+      return ["004"]
+  }
+}
 class UserService {
   static findByUsername = async ({ username }) => {
     return await User.findOne({
@@ -16,6 +34,8 @@ class UserService {
   }
 
   static async createUser(data) {
+    const allowRoles = getAllowRoles(data.roles)
+    data.roles = allowRoles
     return await User.create(data)
   }
 
@@ -42,8 +62,13 @@ class UserService {
     })
   }
 
-  static async getUsers({ query }) {
-    const { keyword, startDate, endDate } = query
+  static async getUsers({ query, keyStore }) {
+    const authUser = (await UserService.getUserById(keyStore.user)).toJSON()
+    const { keyword, startDate, endDate, companyId, branchId, storeId } = query
+
+    const companyFilter = getCompanyFilter(authUser, companyId)
+    const branchFilter = getBranchFilter(authUser, branchId)
+    const storeFilter = getStoreFilter(authUser, storeId)
 
     const pageSize = +query.pageSize
     const page = +query.page
@@ -74,6 +99,9 @@ class UserService {
     const where = {
       ...dateFilter,
       ...keywordFilter,
+      ...companyFilter,
+      ...branchFilter,
+      ...storeFilter,
     }
 
     const { count, rows } = await User.findAndCountAll({
@@ -97,7 +125,22 @@ class UserService {
         [Sequelize.literal("`Branch`.`name`"), "branchName"],
         [Sequelize.literal("`Company`.`name`"), "companyName"],
       ],
-      include: [Store, Branch, Company],
+      // include: [{
+      //   model: Store,
+      //   where: {...storeFilter},
+      //   attributes: [],
+      //   include: [{
+      //     model: Branch,
+      //     where: { ...branchFilter },
+      //     attributes: [],
+      //     include: [{
+      //       model: Company,
+      //       where: { ...companyFilter },
+      //       attributes: [],
+      //     }]
+      //     }]
+      // }],
+      include: [Store, Branch, Company]
     })
 
     return {
@@ -112,8 +155,14 @@ class UserService {
   }
 
   static async updateUser(id, data) {
-    const password = data.password ? {password: await bcrypt.hash(data.password, 10)} : {}
-    const editUser = {...data, ...password}
+    const password = data.password
+      ? { password: await bcrypt.hash(data.password, 10) }
+      : {}
+    
+    const allowRoles = getAllowRoles(data.roles)
+    data.roles = allowRoles
+
+    const editUser = { ...data, ...password }
 
     const user = await User.findOne({
       where: { id },
@@ -129,11 +178,7 @@ class UserService {
         "branchId",
         "companyId",
         "storeId",
-        [Sequelize.literal("`Store`.`name`"), "storeName"],
-        [Sequelize.literal("`Branch`.`name`"), "branchName"],
-        [Sequelize.literal("`Company`.`name`"), "companyName"],
       ],
-      include: [Store, Branch, Company],
     })
     if (!user) {
       throw new NotFoundError("Không tìm thấy người dùng")

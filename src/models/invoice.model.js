@@ -69,21 +69,7 @@ Invoice.init(
     storeId: {
       type: DataTypes.UUID,
       references: {
-        model: Branch,
-        key: "id",
-      },
-    },
-    branchId: {
-      type: DataTypes.UUID,
-      references: {
-        model: Branch,
-        key: "id",
-      },
-    },
-    companyId: {
-      type: DataTypes.UUID,
-      references: {
-        model: Company,
+        model: Store,
         key: "id",
       },
     },
@@ -97,10 +83,6 @@ Invoice.init(
 )
 
 Invoice.belongsTo(Store, { foreignKey: "storeId", onDelete: "SET NULL" })
-Store.hasMany(Invoice, { foreignKey: "storeId", onDelete: "SET NULL" })
-Invoice.belongsTo(Branch, { foreignKey: "branchId", onDelete: "SET NULL" })
-Branch.hasMany(Invoice, { foreignKey: "branchId", onDelete: "SET NULL" })
-Invoice.belongsTo(Company, { foreignKey: "companyId", onDelete: "SET NULL" })
-Company.hasMany(Invoice, { foreignKey: "companyId", onDelete: "SET NULL" })
+Store.hasMany(Invoice, { foreignKey: "storeId" })
 
 module.exports = Invoice

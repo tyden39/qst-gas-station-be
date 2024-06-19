@@ -777,28 +777,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ecommerce-backend@workspace:.":
-  version: 0.0.0-use.local
-  resolution: "ecommerce-backend@workspace:."
-  dependencies:
-    bcrypt: "npm:^5.1.1"
-    compression: "npm:^1.7.4"
-    cors: "npm:^2.8.5"
-    dotenv: "npm:^16.3.1"
-    exceljs: "npm:^4.4.0"
-    express: "npm:^4.18.2"
-    helmet: "npm:^7.1.0"
-    jsonwebtoken: "npm:^9.0.2"
-    lodash: "npm:^4.17.21"
-    moment: "npm:^2.30.1"
-    morgan: "npm:^1.10.0"
-    mysql2: "npm:^3.9.7"
-    os: "npm:^0.1.2"
-    sequelize: "npm:^6.37.3"
-    ws: "npm:^8.17.0"
-  languageName: unknown
-  linkType: soft
-
 "ee-first@npm:1.1.1":
   version: 1.1.1
   resolution: "ee-first@npm:1.1.1"
@@ -2154,6 +2132,28 @@ __metadata:
   checksum: 10c0/4e4875e4d7c7c31c233d07a448e7e4650f456178b9dd3766b7cfa13158fdb24ecb8c4f059fa91e820dc6ab9f2d243721d071c9c0378892dcdad86e9e9a27c68f
   languageName: node
   linkType: hard
+
+"qspeco-backend@workspace:.":
+  version: 0.0.0-use.local
+  resolution: "qspeco-backend@workspace:."
+  dependencies:
+    bcrypt: "npm:^5.1.1"
+    compression: "npm:^1.7.4"
+    cors: "npm:^2.8.5"
+    dotenv: "npm:^16.3.1"
+    exceljs: "npm:^4.4.0"
+    express: "npm:^4.18.2"
+    helmet: "npm:^7.1.0"
+    jsonwebtoken: "npm:^9.0.2"
+    lodash: "npm:^4.17.21"
+    moment: "npm:^2.30.1"
+    morgan: "npm:^1.10.0"
+    mysql2: "npm:^3.9.7"
+    os: "npm:^0.1.2"
+    sequelize: "npm:^6.37.3"
+    ws: "npm:^8.17.0"
+  languageName: unknown
+  linkType: soft
 
 "range-parser@npm:~1.2.1":
   version: 1.2.1

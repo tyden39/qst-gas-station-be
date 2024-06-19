@@ -2,9 +2,14 @@ const { Op, Sequelize } = require("sequelize")
 const Company = require("../models/company.model")
 const { NotFoundError } = require("../core/error.response")
 const bcrypt = require('bcrypt')
+const UserService = require("./user.service")
+const { getCompanyFilter } = require("../utils/permission")
 
 class CompanyService {
-  static async getSimpleList({ query }) {
+  static async getSimpleList({ query, keyStore }) {
+    const authUser = (await UserService.getUserById(keyStore.user)).toJSON()
+    const companyFilter = getCompanyFilter(authUser)
+
     // const { keyword, startDate, endDate } = query
 
     // const pageSize = +query.pageSize
@@ -36,10 +41,11 @@ class CompanyService {
     const where = {
       // ...dateFilter,
       // ...keywordFilter,
+      ...companyFilter
     }
 
     const { count, rows } = await Company.findAndCountAll({
-      // where,
+      where,
       // limit: pageSize,
       // offset: offset,
       order: [["createdAt", "DESC"]],

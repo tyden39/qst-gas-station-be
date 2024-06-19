@@ -7,7 +7,7 @@ const dev = {
     host: process.env.DEV_DB_HOST || 'localhost',
     user: process.env.DEV_DB_USER || 'root',
     password: process.env.DEV_DB_PASSWORD || 'root',
-    name: process.env.DEV_DB_NAME || 'qst_gas_station',
+    name: process.env.DEV_DB_NAME || 'qspeco',
     debug: process.env.DEV_DB_DEBUG || false,
   }
 }
@@ -20,7 +20,7 @@ const prod = {
     host: process.env.PROD_DB_HOST || 'localhost',
     user: process.env.PROD_DB_USER || 'root',
     password: process.env.PROD_DB_PASSWORD || 'root',
-    name: process.env.PROD_DB_NAME || 'qst_gas_station',
+    name: process.env.PROD_DB_NAME || 'qspeco',
     debug: process.env.PROD_DB_DEBUG || false,
   }
 }

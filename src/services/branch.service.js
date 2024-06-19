@@ -3,10 +3,19 @@ const Branch = require("../models/branch.model")
 const Company = require("../models/company.model")
 const { NotFoundError } = require("../core/error.response")
 const bcrypt = require('bcrypt')
+const UserService = require("./user.service")
+const { getCompanyFilter, getBranchFilter } = require("../utils/permission")
 
 class BranchService {
-  static async getSimpleList({ query }) {
-    // const { keyword, startDate, endDate } = query
+  static async getSimpleList({ query, keyStore }) {
+    const authUser = (await UserService.getUserById(keyStore.user)).toJSON()
+
+    const { 
+      // keyword, startDate, endDate,
+      companyId
+    } = query
+    const companyFilter = getCompanyFilter(authUser, companyId)
+    const branchFilter = getBranchFilter(authUser)
 
     // const pageSize = +query.pageSize
     // const page = +query.page
@@ -34,20 +43,27 @@ class BranchService {
     //     : {}
 
     // // Combine filters
-    // const where = {
-    //   ...dateFilter,
-    //   ...keywordFilter,
-    // }
+    const where = {
+      ...branchFilter,
+      // ...dateFilter,
+      // ...keywordFilter,
+    }
 
     const { count, rows } = await Branch.findAndCountAll({
-      // where,
+      where,
       // limit: pageSize,
       // offset: offset,
       order: [["createdAt", "DESC"]],
       attributes: [
         "id",
         "name",
+        "companyId",
+        [Sequelize.literal("`Company`.`name`"), "companyName"],
       ],
+      include: [{
+        model: Company,
+        where: { ...companyFilter }
+      }]
     })
 
     return {
@@ -139,6 +155,10 @@ class BranchService {
         pageSize: pageSize,
       },
     }
+  }
+
+  static async create(data) {
+    return await Branch.create(data)
   }
 
   static async update(id, data) {

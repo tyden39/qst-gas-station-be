@@ -3,13 +3,16 @@ const Invoice = require("../models/invoice.model")
 const {
   BadRequestError,
   ConflictRequestError,
+  UnauthorizedError,
 } = require("../core/error.response")
-const { Op } = require("sequelize")
+const { Op, Sequelize } = require("sequelize")
 const { FUEL_TYPE } = require("../constants/invoice/filter")
 const Branch = require("../models/branch.model")
 const Company = require("../models/company.model")
 const Store = require("../models/store.model")
 const UserService = require("./user.service")
+const { PERMISSION } = require("../constants/auth/permission")
+const { getCompanyFilter, getBranchFilter, getStoreFilter } = require("../utils/permission")
 
 class InvoiceService {
   static async createInvoice(data) {
@@ -47,6 +50,39 @@ class InvoiceService {
     const { id } = params
     const invoice = await Invoice.findOne({
       where: { Check_Key: id },
+      attributes: [
+        'Pump_ID',
+        "Logger_ID",
+        "Check_Key",
+        "Bill_No",
+        "Bill_Type",
+        "Logger_Time",
+        "Fuel_Type",
+        "Start_Time",
+        "End_Time",
+        "Unit_Price",
+        "Quantity",
+        "Unit_Price",
+        "Total_Price",
+        "storeId",
+        [Sequelize.literal("`Store`.`name`"), "storeName"],
+        [Sequelize.literal("`Store->Branch`.`name`"), "branchName"],
+        [Sequelize.literal("`Store->Branch`.`id`"), "branchId"],
+        [Sequelize.literal("`Store->Branch->Company`.`name`"), "companyName"],
+        [Sequelize.literal("`Store->Branch->Company`.`id`"), "companyId"],
+      ],
+      include: [{
+        model: Store,
+        attributes: [],
+        include: [{
+          model: Branch,
+          attributes: [],
+          include: [{
+            attributes: [],
+            model: Company,
+          }]
+        }]
+      }]
     })
     if (!invoice) throw new BadRequestError(`Không tìm thấy hóa đơn mã #${id}!`)
     return invoice
@@ -65,23 +101,9 @@ class InvoiceService {
     const page = +query.page
     const offset = (page - 1) * pageSize
 
-    const companyFilter = authUser.companyId && ['000', '001', ]
-      ? { companyId: authUser.companyId }
-      : companyId
-      ? { companyId: companyId }
-      : {}
-
-    const branchFilter = authUser.branchId
-      ? { branchId: authUser.branchId }
-      : branchId
-      ? { branchId: branchId }
-      : {}
-
-    const storeFilter = authUser.storeId
-      ? { storeId: authUser.storeId }
-      : storeId
-      ? { storeId: storeId }
-      : {}
+    const companyFilter = getCompanyFilter(authUser, companyId)
+    const branchFilter = getBranchFilter(authUser, branchId)
+    const storeFilter = getStoreFilter(authUser, storeId)
 
     const keywordFilter = keyword
       ? {
@@ -129,9 +151,6 @@ class InvoiceService {
       ...billTypeFilter,
       ...fuelTypeFilter,
       ...pumpIdFilter,
-      ...companyFilter,
-      ...branchFilter,
-      ...storeFilter,
     }
 
     const { count, rows: invoices } = await Invoice.findAndCountAll({
@@ -139,7 +158,18 @@ class InvoiceService {
       limit: selectAll ? null : pageSize,
       offset: offset,
       order: [["Logger_Time", "DESC"]],
-      include: [Store, Branch, Company],
+      include: [{
+        model: Store,
+        where: { ...storeFilter },
+        include: [{
+          model: Branch,
+          where: { ...branchFilter },
+          include: [{
+            model: Company,
+            where: { ...companyFilter }
+          }]
+        }]
+      }]
     })
 
     const totalPages = Math.ceil(count / pageSize)
@@ -166,7 +196,10 @@ class InvoiceService {
   }
 
   static async updateInvoice(id, data) {
-    const invoice = await this.getInvoiceById({ id })
+    const invoice = await Invoice.findOne({
+      where: { Check_Key: id }
+    })
+    if (!invoice) throw new BadRequestError(`Không tìm thấy hóa đơn mã #${id}!`)
     return await invoice.update(data)
   }
 

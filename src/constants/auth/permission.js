@@ -1,0 +1,7 @@
+exports.PERMISSION = {
+  ADMINISTRATOR: '000',
+  COMPANY: '001',
+  BRANCH: '002',
+  STORE: '003',
+  STORE_READ_ONLY: '004'
+}
