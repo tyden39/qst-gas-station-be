@@ -7,7 +7,7 @@ const KeyTokenService = require('./keyToken.service')
 const { createTokens, verifyJWT, createTokenPair } = require('../auth/authUtils')
 const { getInfoData } = require('../utils')
 const { BadRequestError, NotFoundError, UnauthorizedError, ForbiddenError } = require('../core/error.response')
-const {findByUsername: findByEmail} = require('./user.service')
+const {findByUsername} = require('./user.service')
 
 const roleUser = {
   ADMIN: '00001',
@@ -59,7 +59,8 @@ class AccessService {
 
   static login = async ({username, password, refreshToken = null}) => {
     // check username
-    const foundUser = await findByEmail({username})
+    const foundUser = await findByUsername({username})
+    console.log(password, foundUser.password)
     if(!foundUser) throw new BadRequestError('Tên đăng nhập hoặc mật khẩu không đúng!')
 
     // check password

@@ -13,6 +13,7 @@ const Store = require("../models/store.model")
 const UserService = require("./user.service")
 const { PERMISSION } = require("../constants/auth/permission")
 const { getCompanyFilter, getBranchFilter, getStoreFilter } = require("../utils/permission")
+const { getStoreFilter: getStoreFilterV2 } = require("../utils/permission.v2")
 
 class InvoiceService {
   static async createInvoice(data) {
@@ -23,7 +24,11 @@ class InvoiceService {
     }
   }
 
-  static async importInvoice(data) {
+  static async importInvoice(data, keyStore) {
+    const authUser = (await UserService.getUserById(keyStore.user)).toJSON()
+
+    const userStore = getStoreFilterV2(authUser)
+
     const loggerTimeDate = moment(
       data.Logger_Time,
       "DD-MM-YYYY HH:mm:ss"
@@ -35,6 +40,7 @@ class InvoiceService {
     const endTimeDate = moment(data.End_Time, "DD-MM-YYYY HH:mm:ss").toDate()
     try {
       const createdInvoice = await Invoice.create({
+        ...userStore,
         ...data,
         Logger_Time: loggerTimeDate,
         Start_Time: startTimeDate,

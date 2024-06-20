@@ -45,7 +45,7 @@ const initialData = async () => {
 
   await User.create({
     username: "admin",
-    password: "$2b$10$9ehv26dwrM3Yms7wpPqvOOiAyiiaBrhQ1hkn8DPiukB5FBAt7CcfK",
+    password: "123",
     phone: "0987654321",
     email: "admin@gmail.com",
     firstName: "Admin",
@@ -54,7 +54,7 @@ const initialData = async () => {
   })
   await User.create({
     username: "user1",
-    password: "$2b$10$9ehv26dwrM3Yms7wpPqvOOiAyiiaBrhQ1hkn8DPiukB5FBAt7CcfK",
+    password: "123",
     companyId: companyA.id,
     phone: "0987654322",
     email: "user1@gmail.com",
@@ -64,7 +64,7 @@ const initialData = async () => {
   })
   await User.create({
     username: "user2",
-    password: "$2b$10$9ehv26dwrM3Yms7wpPqvOOiAyiiaBrhQ1hkn8DPiukB5FBAt7CcfK",
+    password: "123",
     branchId: branch2.id,
     companyId: companyA.id,
     phone: "0987654323",
@@ -75,7 +75,7 @@ const initialData = async () => {
   })
   await User.create({
     username: "user3",
-    password: "$2b$10$9ehv26dwrM3Yms7wpPqvOOiAyiiaBrhQ1hkn8DPiukB5FBAt7CcfK",
+    password: "123",
     storeId: store3.id,
     branchId: branch3.id,
     companyId: companyB.id,
@@ -87,7 +87,7 @@ const initialData = async () => {
   })
   await User.create({
     username: "user4",
-    password: "$2b$10$9ehv26dwrM3Yms7wpPqvOOiAyiiaBrhQ1hkn8DPiukB5FBAt7CcfK",
+    password: "123",
     storeId: store3.id,
     branchId: branch3.id,
     companyId: companyB.id,

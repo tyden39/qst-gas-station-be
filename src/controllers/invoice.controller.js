@@ -10,7 +10,7 @@ class InvoiceController {
   importOneInvoice = async (req, res, next) => {
     new CREATED({
       message: "Import an invoice success!",
-      data: await InvoiceService.importInvoice(req.body),
+      data: await InvoiceService.importInvoice(req.body, req.keyStore),
     }).send(res)
   }
 

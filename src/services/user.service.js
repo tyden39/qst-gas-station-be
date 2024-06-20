@@ -2,7 +2,7 @@ const { Op, Sequelize } = require("sequelize")
 const User = require("../models/user.model")
 const Branch = require("../models/branch.model")
 const Company = require("../models/company.model")
-const { NotFoundError } = require("../core/error.response")
+const { NotFoundError, BadRequestError } = require("../core/error.response")
 const bcrypt = require("bcrypt")
 const Store = require("../models/store.model")
 const { getCompanyFilter, getBranchFilter, getStoreFilter } = require("../utils/permission.v2")
@@ -34,9 +34,19 @@ class UserService {
   }
 
   static async createUser(data) {
+    const holderUser = await User.findOne({ where: {username: data.username} })
+    if (holderUser) {
+      throw new BadRequestError(`Tên người dùng "${data.username}" đã tồn tại!`)
+    }
+
     const allowRoles = getAllowRoles(data.roles)
     data.roles = allowRoles
-    return await User.create(data)
+    
+    const passwordHash = await bcrypt.hash(data.password, 10)
+    return await User.create({
+      ...data,
+      password: passwordHash,
+    })
   }
 
   static async getUserById(id) {
