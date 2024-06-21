@@ -79,6 +79,7 @@ class UserService {
     const companyFilter = getCompanyFilter(authUser, companyId)
     const branchFilter = getBranchFilter(authUser, branchId)
     const storeFilter = getStoreFilter(authUser, storeId)
+    const rolesFilter = {roles: authUser.roles}
 
     const pageSize = +query.pageSize
     const page = +query.page
@@ -153,8 +154,10 @@ class UserService {
       include: [Store, Branch, Company]
     })
 
+    const data = rows.filter(r => authUser.roles.includes(r.roles?.[0]))
+
     return {
-      data: rows,
+      data,
       meta: {
         totalItems: count,
         totalPages: Math.ceil(count / pageSize),
