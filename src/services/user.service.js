@@ -172,8 +172,10 @@ class UserService {
       ? { password: await bcrypt.hash(data.password, 10) }
       : {}
     
-    const allowRoles = getAllowRoles(data.roles)
-    data.roles = allowRoles
+    if (data.roles) {
+      const allowRoles = getAllowRoles(data.roles)
+      data.roles = allowRoles
+    }
 
     const editUser = { ...data, ...password }
 
