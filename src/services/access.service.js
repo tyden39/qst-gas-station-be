@@ -60,7 +60,7 @@ class AccessService {
   static login = async ({username, password, refreshToken = null}) => {
     // check username
     const foundUser = await findByUsername({username})
-    console.log(password, foundUser.password)
+
     if(!foundUser) throw new BadRequestError('Tên đăng nhập hoặc mật khẩu không đúng!')
 
     // check password
