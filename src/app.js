@@ -6,6 +6,7 @@ const { default: helmet } = require("helmet")
 const sequelize = require("./dbs/init.database")
 const cors = require("cors")
 const initialData = require("./dbs/init.data")
+const configServer = require("./configs/config.server")
 const app = express()
 
 // middlewares
@@ -27,10 +28,10 @@ sequelize
   .catch((error) => console.error("Unable to connect to the database:", error))
 
 const corsOptions = {
-  origin: "http://localhost:3000",
+  origin: configServer.app.corsOrigin,
   // methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
-  credentials: true, // Enable CORS for cookies, authorization headers, etc.
-  optionsSuccessStatus: 204, // Some legacy browsers choke on 204
+  // credentials: true, // Enable CORS for cookies, authorization headers, etc.
+  // optionsSuccessStatus: 204, // Some legacy browsers choke on 204
 }
 
 app.use(cors(corsOptions))
