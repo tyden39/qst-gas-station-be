@@ -17,7 +17,7 @@ app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 
 // db
-const dbSyncForce = false
+const dbSyncForce = true
 sequelize
   .sync({ force: dbSyncForce })
   .then(async () => {
