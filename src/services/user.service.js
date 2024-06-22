@@ -6,6 +6,8 @@ const { NotFoundError, BadRequestError } = require("../core/error.response")
 const bcrypt = require("bcrypt")
 const Store = require("../models/store.model")
 const { getCompanyFilter, getBranchFilter, getStoreFilter } = require("../utils/permission.v2")
+const KeyTokenService = require("./keyToken.service")
+const { update } = require("lodash")
 
 const getAllowRoles = (role) => {
   switch (role) {
@@ -36,7 +38,7 @@ class UserService {
   static async createUser(data) {
     const holderUser = await User.findOne({ where: {username: data.username} })
     if (holderUser) {
-      throw new BadRequestError(`Tên người dùng "${data.username}" đã tồn tại!`)
+      throw new BadRequestError(`Tên đăng nhập "${data.username}" đã tồn tại!`)
     }
 
     const allowRoles = getAllowRoles(data.roles)
@@ -168,22 +170,12 @@ class UserService {
   }
 
   static async updateUser(id, data) {
-    const password = data.password
-      ? { password: await bcrypt.hash(data.password, 10) }
-      : {}
-    
-    if (data.roles) {
-      const allowRoles = getAllowRoles(data.roles)
-      data.roles = allowRoles
-    }
-
-    const editUser = { ...data, ...password }
-
     const user = await User.findOne({
       where: { id },
       attributes: [
         "id",
         "username",
+        "password",
         "firstName",
         "lastName",
         "email",
@@ -198,7 +190,30 @@ class UserService {
     if (!user) {
       throw new NotFoundError("Không tìm thấy người dùng")
     }
-    return await user.update(editUser)
+    
+    if (data.password) {
+      const passwordMatch = await bcrypt.compare(data.password, user.password)
+      if (!passwordMatch) {
+        const keyStore = await KeyTokenService.findByPropertyName('user', id)
+        if (keyStore) await KeyTokenService.removeKeyById(keyStore.id)
+
+        const encryptPassword = await bcrypt.hash(data.password, 10)
+        data.password = encryptPassword
+      }
+    }
+
+    if (data.roles && data.roles !== user.roles) {
+      const keyStore = await KeyTokenService.findByPropertyName('user', id)
+      if (keyStore) await KeyTokenService.removeKeyById(keyStore.id)
+
+      const allowRoles = getAllowRoles(data.roles)
+      data.roles = allowRoles
+    }
+
+    const updatedUser = await (await user.update(data)).toJSON()
+    delete updatedUser.password
+
+    return updatedUser
   }
 
   static async deleteUser(id) {

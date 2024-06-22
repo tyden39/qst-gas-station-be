@@ -65,7 +65,6 @@ const authentication = asyncHandler(async (req, res, next) => {
   try {
 
     const publicKey = await fs.readFileSync('./public.pem', 'utf8');
-    const privateKey = await fs.readFileSync('./private.pem', 'utf8');
     const accessToken = req.headers[HEADER.AUTHORIZATION]
     if (!accessToken) throw new UnauthorizedError("Invalid token")
 
@@ -75,12 +74,12 @@ const authentication = asyncHandler(async (req, res, next) => {
       "user",
       decodeUser.userId
     )
-    if (!keyStore) throw new NotFoundError("Invalid token")
+    if (!keyStore) throw new UnauthorizedError("Invalid token")
 
     req.keyStore = keyStore.toJSON()
     return next()
   } catch (error) {
-    throw error
+    throw new UnauthorizedError("Invalid token")
   }
 })
 
