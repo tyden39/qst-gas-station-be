@@ -18,7 +18,23 @@ const { getStoreFilter: getStoreFilterV2 } = require("../utils/permission.v2")
 class InvoiceService {
   static async createInvoice(data) {
     try {
-      return await Invoice.create(data)
+
+      const loggerTimeDate = moment(
+        data.Logger_Time,
+        "DD-MM-YYYY HH:mm:ss"
+      ).toDate()
+      const startTimeDate = moment(
+        data.Start_Time,
+        "DD-MM-YYYY HH:mm:ss"
+      ).toDate()
+      const endTimeDate = moment(data.End_Time, "DD-MM-YYYY HH:mm:ss").toDate()
+      
+      return await Invoice.create({
+        ...data,
+        Logger_Time: loggerTimeDate,
+        Start_Time: startTimeDate,
+        End_Time: endTimeDate,
+      })
     } catch (error) {
       throw new ConflictRequestError(error.message)
     }
@@ -31,13 +47,13 @@ class InvoiceService {
 
     const loggerTimeDate = moment(
       data.Logger_Time,
-      "DD-MM-YYYY HH:mm:ss"
+      moment.ISO_8601
     ).toDate()
     const startTimeDate = moment(
       data.Start_Time,
-      "DD-MM-YYYY HH:mm:ss"
+      moment.ISO_8601
     ).toDate()
-    const endTimeDate = moment(data.End_Time, "DD-MM-YYYY HH:mm:ss").toDate()
+    const endTimeDate = moment(data.End_Time, moment.ISO_8601).toDate()
     try {
       const createdInvoice = await Invoice.create({
         ...userStore,
