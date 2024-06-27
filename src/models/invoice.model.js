@@ -1,8 +1,6 @@
 const sequelize = require("../dbs/init.database")
 const { Model, DataTypes } = require("sequelize")
-const Store = require("./store.model")
-const Branch = require("./branch.model")
-const Company = require("./company.model")
+const Logger = require("./logger.model")
 
 class Invoice extends Model {}
 
@@ -11,67 +9,54 @@ Invoice.init(
     id: {
       type: DataTypes.UUID,
       defaultValue: DataTypes.UUIDV4,
-      primaryKey: true
-    },
-    Pump_ID: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
+      primaryKey: true,
     },
     Logger_ID: {
       type: DataTypes.STRING,
       allowNull: false,
+      references: {
+        model: Logger,
+        key: "Logger_ID",
+      },
+    },
+    Logger_Time: {
+      type: DataTypes.DATE,
     },
     Check_Key: {
       type: DataTypes.STRING,
       allowNull: false,
       primaryKey: true,
       unique: {
-        name: 'unique_check_key',
-        msg: 'duplicate Check Key'
-    }
+        name: "unique_check_key",
+        msg: "duplicate Check Key",
+      },
+    },
+    Pump_ID: {
+      type: DataTypes.INTEGER,
     },
     Bill_No: {
       type: DataTypes.INTEGER,
-      allowNull: false,
     },
     Bill_Type: {
       type: DataTypes.INTEGER,
-      allowNull: false,
-    },
-    Logger_Time: {
-      type: DataTypes.DATE,
-      allowNull: false,
     },
     Fuel_Type: {
       type: DataTypes.STRING,
-      allowNull: false,
     },
     Start_Time: {
       type: DataTypes.DATE,
-      allowNull: false,
     },
     End_Time: {
       type: DataTypes.DATE,
-      allowNull: false,
     },
     Unit_Price: {
       type: DataTypes.DECIMAL(9, 0),
-      allowNull: false,
     },
     Quantity: {
       type: DataTypes.DECIMAL(9, 3),
-      allowNull: false,
     },
     Total_Price: {
       type: DataTypes.DECIMAL(18, 3),
-      allowNull: false,
-    },
-    storeId: {
-      type: DataTypes.UUID,
-      references: {
-        model: Store,
-        key: "id",
-      },
     },
   },
   {
@@ -82,7 +67,7 @@ Invoice.init(
   }
 )
 
-Invoice.belongsTo(Store, { foreignKey: "storeId", onDelete: "SET NULL" })
-Store.hasMany(Invoice, { foreignKey: "storeId" })
+Invoice.belongsTo(Logger, { foreignKey: "Logger_ID", onDelete: "SET NULL" })
+Logger.hasMany(Invoice, { foreignKey: "Logger_ID" })
 
 module.exports = Invoice

@@ -1,9 +1,19 @@
 const Branch = require("../models/branch.model")
 const Company = require("../models/company.model")
 const Invoice = require("../models/invoice.model")
+const Logger = require("../models/logger.model")
 const Store = require("../models/store.model")
 const User = require("../models/user.model")
 const moment = require("moment")
+
+const initLogger = () => {
+  const loggers = []
+  loggers.forEach(async (item) => {
+    await Invoice.create({
+      ...item,
+    })
+  })
+}
 
 const initialData = async () => {
   const companyA = await Company.create({ name: "Company A" })
@@ -34,11 +44,11 @@ const initialData = async () => {
     name: "Store 3",
     branchId: branch2.id,
   })
-  const store4= await Store.create({
+  const store4 = await Store.create({
     name: "Store 4",
     branchId: branch3.id,
   })
-  const store5= await Store.create({
+  const store5 = await Store.create({
     name: "Store 5",
     branchId: branch3.id,
   })
@@ -50,7 +60,7 @@ const initialData = async () => {
     email: "admin@gmail.com",
     firstName: "Admin",
     lastName: "",
-    roles: ["000","001","002","003","004"]
+    roles: ["000", "001", "002", "003", "004"],
   })
   await User.create({
     username: "user1",
@@ -60,7 +70,7 @@ const initialData = async () => {
     email: "user1@gmail.com",
     firstName: "Trần",
     lastName: "Thị B",
-    roles: ["001","002","003","004"]
+    roles: ["001", "002", "003", "004"],
   })
   await User.create({
     username: "user2",
@@ -71,7 +81,7 @@ const initialData = async () => {
     email: "user2@gmail.com",
     firstName: "Lê",
     lastName: "Văn C",
-    roles: ["002","003","004"]
+    roles: ["002", "003", "004"],
   })
   await User.create({
     username: "user3",
@@ -83,7 +93,7 @@ const initialData = async () => {
     email: "user3@gmail.com",
     firstName: "Phạm",
     lastName: "Thị D",
-    roles: ["003","004"]
+    roles: ["003", "004"],
   })
   await User.create({
     username: "user4",
@@ -95,7 +105,55 @@ const initialData = async () => {
     email: "user4@gmail.com",
     firstName: "Hoàng",
     lastName: "Văn E",
-    roles: ["004"]
+    roles: ["004"],
+  })
+
+  const loggers = [
+    {
+      Logger_ID: "01905969501",
+      storeId: store1.id,
+    },
+    {
+      Logger_ID: "01905969502",
+      storeId: store1.id,
+    },
+    {
+      Logger_ID: "01905969503",
+      storeId: store2.id,
+    },
+    {
+      Logger_ID: "01905969504",
+      storeId: store2.id,
+    },
+    {
+      Logger_ID: "01905969505",
+      storeId: store3.id,
+    },
+    {
+      Logger_ID: "01905969506",
+      storeId: store3.id,
+    },
+    {
+      Logger_ID: "01905969507",
+      storeId: store4.id,
+    },
+    {
+      Logger_ID: "01905969508",
+      storeId: store4.id,
+    },
+    {
+      Logger_ID: "01905969509",
+      storeId: store5.id,
+    },
+    {
+      Logger_ID: "01905969510",
+      storeId: store5.id,
+    },
+  ]
+  loggers.forEach(async (item) => {
+    await Logger.create({
+      ...item,
+    })
   })
 
   const invoices = [
@@ -112,10 +170,9 @@ const initialData = async () => {
       Unit_Price: 25740,
       Quantity: 0.545,
       Total_Price: 14020,
-      storeId: store3.id
     },
     {
-      Logger_ID: "01905969502",
+      Logger_ID: "01905969501",
       Check_Key: "T00R00K155528140525",
       Logger_Time: "14-05-2024 16-02-13",
       Pump_ID: 1,
@@ -127,10 +184,9 @@ const initialData = async () => {
       Unit_Price: 22040,
       Quantity: 2.312,
       Total_Price: 50970,
-      storeId: store3.id
     },
     {
-      Logger_ID: "01905969503",
+      Logger_ID: "01905969501",
       Check_Key: "T00R00K155528140526",
       Logger_Time: "14-05-2024 16-15-38",
       Pump_ID: 2,
@@ -142,10 +198,9 @@ const initialData = async () => {
       Unit_Price: 25740,
       Quantity: 10.823,
       Total_Price: 278530,
-      storeId: store3.id
     },
     {
-      Logger_ID: "01905969504",
+      Logger_ID: "01905969501",
       Check_Key: "T00R00K155528140527",
       Logger_Time: "14-05-2024 16-23-17",
       Pump_ID: 3,
@@ -157,10 +212,9 @@ const initialData = async () => {
       Unit_Price: 22040,
       Quantity: 18.456,
       Total_Price: 406870,
-      storeId: store3.id
     },
     {
-      Logger_ID: "01905969505",
+      Logger_ID: "01905969501",
       Check_Key: "T00R00K155528140528",
       Logger_Time: "14-05-2024 16-36-52",
       Pump_ID: 4,
@@ -172,10 +226,9 @@ const initialData = async () => {
       Unit_Price: 25740,
       Quantity: 5.689,
       Total_Price: 146570,
-      storeId: store3.id
     },
     {
-      Logger_ID: "01905969506",
+      Logger_ID: "01905969502",
       Check_Key: "T00R00K155528140529",
       Logger_Time: "14-05-2024 16-48-29",
       Pump_ID: 5,
@@ -187,10 +240,9 @@ const initialData = async () => {
       Unit_Price: 24570,
       Quantity: 12.365,
       Total_Price: 304360,
-      storeId: store3.id
     },
     {
-      Logger_ID: "01905969507",
+      Logger_ID: "01905969502",
       Check_Key: "T00R00K155528140530",
       Logger_Time: "14-05-2024 16-59-05",
       Pump_ID: 6,
@@ -202,10 +254,9 @@ const initialData = async () => {
       Unit_Price: 22040,
       Quantity: 25.987,
       Total_Price: 572740,
-      storeId: store3.id
     },
     {
-      Logger_ID: "01905969508",
+      Logger_ID: "01905969502",
       Check_Key: "T00R00K155528140531",
       Logger_Time: "14-05-2024 17-07-43",
       Pump_ID: 7,
@@ -217,10 +268,9 @@ const initialData = async () => {
       Unit_Price: 25740,
       Quantity: 32.145,
       Total_Price: 828470,
-      storeId: store4.id
     },
     {
-      Logger_ID: "01905969509",
+      Logger_ID: "01905969502",
       Check_Key: "T00R00K155528140532",
       Logger_Time: "14-05-2024 17-16-21",
       Pump_ID: 8,
@@ -232,10 +282,9 @@ const initialData = async () => {
       Unit_Price: 24570,
       Quantity: 8.901,
       Total_Price: 218340,
-      storeId: store4.id
     },
     {
-      Logger_ID: "01905969510",
+      Logger_ID: "01905969502",
       Check_Key: "T00R00K155528140533",
       Logger_Time: "14-05-2024 17-28-56",
       Pump_ID: 9,
@@ -247,10 +296,9 @@ const initialData = async () => {
       Unit_Price: 22040,
       Quantity: 41.568,
       Total_Price: 916020,
-      storeId: store4.id
     },
     {
-      Logger_ID: "01905969511",
+      Logger_ID: "01905969503",
       Check_Key: "T00R00K155528140534",
       Logger_Time: "14-05-2024 17-39-32",
       Pump_ID: 10,
@@ -262,10 +310,9 @@ const initialData = async () => {
       Unit_Price: 25740,
       Quantity: 15.478,
       Total_Price: 398110,
-      storeId: store4.id
     },
     {
-      Logger_ID: "01905969512",
+      Logger_ID: "01905969503",
       Check_Key: "T00R00K155528140535",
       Logger_Time: "14-05-2024 17-51-09",
       Pump_ID: 11,
@@ -277,10 +324,9 @@ const initialData = async () => {
       Unit_Price: 24570,
       Quantity: 3.287,
       Total_Price: 80820,
-      storeId: store4.id
     },
     {
-      Logger_ID: "01905969513",
+      Logger_ID: "01905969503",
       Check_Key: "T00R00K155528140536",
       Logger_Time: "14-05-2024 18-03-44",
       Pump_ID: 12,
@@ -292,10 +338,9 @@ const initialData = async () => {
       Unit_Price: 22040,
       Quantity: 38.296,
       Total_Price: 844050,
-      storeId: store4.id
     },
     {
-      Logger_ID: "01905969514",
+      Logger_ID: "01905969503",
       Check_Key: "T00R00K155528140537",
       Logger_Time: "14-05-2024 18-11-22",
       Pump_ID: 13,
@@ -307,10 +352,9 @@ const initialData = async () => {
       Unit_Price: 25740,
       Quantity: 21.753,
       Total_Price: 560500,
-      storeId: store4.id
     },
     {
-      Logger_ID: "01905969515",
+      Logger_ID: "01905969503",
       Check_Key: "T00R00K155528140538",
       Logger_Time: "14-05-2024 18-24-07",
       Pump_ID: 14,
@@ -322,10 +366,9 @@ const initialData = async () => {
       Unit_Price: 24570,
       Quantity: 6.418,
       Total_Price: 157700,
-      storeId: store4.id
     },
     {
-      Logger_ID: "01905969516",
+      Logger_ID: "01905969504",
       Check_Key: "T00R00K155528140539",
       Logger_Time: "14-05-2024 18-32-53",
       Pump_ID: 15,
@@ -337,10 +380,9 @@ const initialData = async () => {
       Unit_Price: 22040,
       Quantity: 52.804,
       Total_Price: 1163650,
-      storeId: store2.id
     },
     {
-      Logger_ID: "01905969517",
+      Logger_ID: "01905969504",
       Check_Key: "T00R00K155528140540",
       Logger_Time: "14-05-2024 18-45-28",
       Pump_ID: 0,
@@ -352,10 +394,9 @@ const initialData = async () => {
       Unit_Price: 25740,
       Quantity: 1.124,
       Total_Price: 28950,
-      storeId: store2.id
     },
     {
-      Logger_ID: "01905969518",
+      Logger_ID: "01905969504",
       Check_Key: "T00R00K155528140541",
       Logger_Time: "14-05-2024 18-53-16",
       Pump_ID: 1,
@@ -367,10 +408,9 @@ const initialData = async () => {
       Unit_Price: 24570,
       Quantity: 19.543,
       Total_Price: 480620,
-      storeId: store2.id
     },
     {
-      Logger_ID: "01905969519",
+      Logger_ID: "01905969504",
       Check_Key: "T00R00K155528140542",
       Logger_Time: "14-05-2024 19-01-04",
       Pump_ID: 2,
@@ -382,10 +422,9 @@ const initialData = async () => {
       Unit_Price: 22040,
       Quantity: 7.635,
       Total_Price: 168260,
-      storeId: store2.id
     },
     {
-      Logger_ID: "01905969520",
+      Logger_ID: "01905969505",
       Check_Key: "T00R00K155528140543",
       Logger_Time: "14-05-2024 19-08-42",
       Pump_ID: 3,
@@ -397,10 +436,9 @@ const initialData = async () => {
       Unit_Price: 25740,
       Quantity: 28.319,
       Total_Price: 729520,
-      storeId: store2.id
     },
     {
-      Logger_ID: "01905969521",
+      Logger_ID: "01905969505",
       Check_Key: "T00R00K155528140544",
       Logger_Time: "14-05-2024 19-19-18",
       Pump_ID: 4,
@@ -412,10 +450,9 @@ const initialData = async () => {
       Unit_Price: 24570,
       Quantity: 9.854,
       Total_Price: 242180,
-      storeId: store2.id
     },
     {
-      Logger_ID: "01905969522",
+      Logger_ID: "01905969505",
       Check_Key: "T00R00K155528140545",
       Logger_Time: "14-05-2024 19-27-55",
       Pump_ID: 5,
@@ -427,10 +464,9 @@ const initialData = async () => {
       Unit_Price: 22040,
       Quantity: 14.208,
       Total_Price: 313180,
-      storeId: store2.id
     },
     {
-      Logger_ID: "01905969523",
+      Logger_ID: "01905969505",
       Check_Key: "T00R00K155528140546",
       Logger_Time: "14-05-2024 19-36-33",
       Pump_ID: 6,
@@ -442,10 +478,9 @@ const initialData = async () => {
       Unit_Price: 25740,
       Quantity: 45.781,
       Total_Price: 1178240,
-      storeId: store2.id
     },
     {
-      Logger_ID: "01905969524",
+      Logger_ID: "01905969506",
       Check_Key: "T00R00K155528140547",
       Logger_Time: "14-05-2024 19-44-11",
       Pump_ID: 7,
@@ -457,10 +492,9 @@ const initialData = async () => {
       Unit_Price: 24570,
       Quantity: 0.0,
       Total_Price: 0,
-      storeId: store2.id
     },
     {
-      Logger_ID: "01905969525",
+      Logger_ID: "01905969507",
       Check_Key: "T00R00K155528140548",
       Logger_Time: "14-05-2024 19-52-49",
       Pump_ID: 8,
@@ -472,10 +506,9 @@ const initialData = async () => {
       Unit_Price: 22040,
       Quantity: 1.879,
       Total_Price: 41410,
-      storeId: store1.id
     },
     {
-      Logger_ID: "01905969526",
+      Logger_ID: "01905969508",
       Check_Key: "T00R00K155528140549",
       Logger_Time: "14-05-2024 19-58-26",
       Pump_ID: 9,
@@ -487,10 +520,9 @@ const initialData = async () => {
       Unit_Price: 25740,
       Quantity: 6.258,
       Total_Price: 161040,
-      storeId: store1.id
     },
     {
-      Logger_ID: "01905969527",
+      Logger_ID: "01905969509",
       Check_Key: "T00R00K155528140550",
       Logger_Time: "14-05-2024 20-06-14",
       Pump_ID: 10,
@@ -502,10 +534,9 @@ const initialData = async () => {
       Unit_Price: 24570,
       Quantity: 34.962,
       Total_Price: 859310,
-      storeId: store1.id
     },
     {
-      Logger_ID: "01905969528",
+      Logger_ID: "01905969510",
       Check_Key: "T00R00K155528140551",
       Logger_Time: "14-05-2024 20-18-49",
       Pump_ID: 11,
@@ -517,10 +548,9 @@ const initialData = async () => {
       Unit_Price: 22040,
       Quantity: 2.045,
       Total_Price: 45070,
-      storeId: store1.id
     },
     {
-      Logger_ID: "01905969529",
+      Logger_ID: "01905969510",
       Check_Key: "T00R00K155528140552",
       Logger_Time: "14-05-2024 20-26-37",
       Pump_ID: 12,
@@ -532,10 +562,8 @@ const initialData = async () => {
       Unit_Price: 25740,
       Quantity: 17.629,
       Total_Price: 453690,
-      storeId: store1.id
     },
   ]
-
   invoices.forEach(async (invoice) => {
     const loggerTimeDate = moment(
       invoice.Logger_Time,
@@ -555,28 +583,6 @@ const initialData = async () => {
   })
 
   console.log("Data inserted!")
-
-  // const users = await User.findAll({
-  //   include: [Branch, Company]
-  // attributes: [
-  //   'username',
-  //   'firstName',
-  //   'lastName',
-  //   'email',
-  //   'phone',
-  //   'roles',
-  //   'status',
-  //   [Sequelize.literal('`Branch`.`name`'), 'branchName'],
-  //   [Sequelize.literal('`Company`.`name`'), 'companyName']
-  // ],
-  // include: [{
-  //   model: Branch,
-  //   attributes: [] // Không cần lấy lại các thuộc tính của Branch
-  // }, {
-  //   model: Company,
-  //   attributes: [] // Không cần lấy lại các thuộc tính của Company
-  // }]
-  // console.log(users.map(user => user.toJSON()))
 }
 
 module.exports = initialData
