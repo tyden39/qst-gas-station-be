@@ -14,6 +14,13 @@ class InvoiceController {
     }).send(res)
   }
 
+  createInvoice = async (req, res, next) => {
+    new CREATED({
+      message: "Create an invoice success!",
+      data: await InvoiceService.createInvoice(req.body, req.keyStore),
+    }).send(res)
+  }
+
   getInvoices = async (req, res, next) => {
     new OK({
       message: "Get invoices success!",
