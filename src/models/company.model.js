@@ -30,6 +30,9 @@ Company.init(
     },
     taxCode: {
       type: DataTypes.STRING
+    },
+    token: {
+      type: DataTypes.TEXT
     }
   },
   {
@@ -37,6 +40,7 @@ Company.init(
     modelName: "Company",
     tableName: "companies",
     timestamps: true,
+    paranoid: true,
   }
 )
 

@@ -15,5 +15,6 @@ router.post('/edit/:id', asyncHandler(invoiceController.updateInvoice))
 router.delete('/delete/:id', asyncHandler(invoiceController.deleteInvoice))
 router.get('/export-excel', asyncHandler(invoiceController.exportExcel))
 router.get('/:id', asyncHandler(invoiceController.getInvoice))
+router.post('/restore/:id', asyncHandler(invoiceController.restore))
 
 module.exports = router

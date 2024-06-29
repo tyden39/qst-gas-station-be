@@ -42,7 +42,14 @@ class CompanyController {
   deleteOne = async (req, res, next) => {
     new OK({
       message: 'Delete company success!',
-      data: await CompanyService.deleteOne(req.params.id)
+      data: await CompanyService.deleteOne(req.params.id, req.body.force)
+    }).send(res)
+  }
+
+  restoreOne = async (req, res, next) => {
+    new OK({
+      message: 'Restore company success!',
+      data: await CompanyService.restoreOne(req.params.id)
     }).send(res)
   }
 }

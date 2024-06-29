@@ -46,6 +46,7 @@ Branch.init(
     modelName: "Branch",
     tableName: "branches",
     timestamps: true,
+    paranoid: true,
   }
 )
 

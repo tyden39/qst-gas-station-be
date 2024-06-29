@@ -5,6 +5,7 @@ const { NotFoundError } = require("../core/error.response")
 const bcrypt = require('bcrypt')
 const UserService = require("./user.service")
 const { getCompanyFilter, getBranchFilter } = require("../utils/permission")
+const { PERMISSION } = require("../constants/auth/permission")
 
 class BranchService {
   static async getSimpleList({ query, keyStore }) {
@@ -78,24 +79,25 @@ class BranchService {
   }
 
   static async getById(id) {
+    const authUser = (await UserService.getUserById(keyStore.user)).toJSON()
+    const isAdmin = authUser.roles[0] === PERMISSION.ADMINISTRATOR
     return await Branch.findOne({
       where: { id },
-      attributes: [
-        "id",
-        "name",
-        "subTaxCode",
-        "address",
-        "email",
-        "phone",
-        "companyId",
-        [Sequelize.literal("`Company`.`name`"), "companyName"],
-      ],
+      paranoid: !isAdmin,
+      attributes: {
+        include: [
+          [Sequelize.literal("`Company`.`name`"), "companyName"],
+        ]
+      },
       include: [Company],
     })
   }
 
-  static async getAll({ query }) {
+  static async getAll({ query, keyStore }) {
     const { keyword, startDate, endDate } = query
+
+    const authUser = (await UserService.getUserById(keyStore.user)).toJSON()
+    const isAdmin = authUser.roles[0] === PERMISSION.ADMINISTRATOR
 
     const pageSize = +query.pageSize
     const page = +query.page
@@ -130,19 +132,15 @@ class BranchService {
 
     const { count, rows } = await Branch.findAndCountAll({
       where,
+      paranoid: !isAdmin,
       limit: pageSize,
       offset: offset,
       order: [["createdAt", "DESC"]],
-      attributes: [
-        "id",
-        "name",
-        "subTaxCode",
-        "address",
-        "email",
-        "phone",
-        "companyId",
-        [Sequelize.literal("`Company`.`name`"), "companyName"],
-      ],
+      attributes: {
+        include: [
+          [Sequelize.literal("`Company`.`name`"), "companyName"],
+        ]
+      },
       include: [Company],
     })
 
@@ -167,16 +165,11 @@ class BranchService {
 
     const branch = await Branch.findOne({
       where: { id },
-      attributes: [
-        "id",
-        "name",
-        "subTaxCode",
-        "address",
-        "email",
-        "phone",
-        "companyId",
-        [Sequelize.literal("`Company`.`name`"), "companyName"],
-      ],
+      attributes: {
+        include: [
+          [Sequelize.literal("`Company`.`name`"), "companyName"],
+        ]
+      },
       include: [Company],
     })
     if (!branch) {
@@ -185,12 +178,20 @@ class BranchService {
     return await branch.update(editData)
   }
 
-  static async delete(id) {
-    const branch = await Branch.findByPk(id)
+  static async delete(id, force) {
+    const branch = await Branch.findByPk(id, { paranoid: !force })
     if (!branch) {
       throw new NotFoundError("Không tìm thấy chi nhánh cần xóa!")
     }
-    await Branch.destroy({ where: { id }, force: true })
+    await branch.destroy({ force: Boolean(force) })
+  }
+
+  static async restore(id) {
+    const branch = await Branch.findByPk(id, { paranoid: false })
+    if (!branch) {
+      throw new NotFoundError("Không tìm thấy chi nhánh cần khôi phục!")
+    }
+    await branch.restore()
   }
 }
 

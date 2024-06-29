@@ -12,6 +12,7 @@ router.get('/list', asyncHandler(userController.getUsers))
 router.post('/edit/:id', asyncHandler(userController.updateUser))
 router.post('/create', asyncHandler(userController.createUser))
 router.delete('/delete/:id', asyncHandler(userController.deleteUser))
+router.post('/restore/:id', asyncHandler(userController.restore))
 router.get('/:id', asyncHandler(userController.getUser))
 
 module.exports = router

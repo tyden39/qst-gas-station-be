@@ -9,5 +9,6 @@ router.use('/user', require('./user'))
 router.use('/company', require('./company'))
 router.use('/branch', require('./branch'))
 router.use('/store', require('./store'))
+router.use('/logger', require('./logger'))
 
 module.exports = router

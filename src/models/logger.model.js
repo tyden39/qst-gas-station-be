@@ -29,6 +29,7 @@ Logger.init(
     sequelize,
     modelName: "Logger",
     tableName: "loggers",
+    paranoid: true,
     timestamps: true,
   }
 )

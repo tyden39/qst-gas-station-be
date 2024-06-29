@@ -42,7 +42,14 @@ class BranchController {
   delete = async (req, res, next) => {
     new OK({
       message: 'Delete branch success!',
-      data: await BranchService.delete(req.params.id)
+      data: await BranchService.delete(req.params.id, req.body.force)
+    }).send(res)
+  }
+
+  restore = async (req, res, next) => {
+    new OK({
+      message: 'Restore branch success!',
+      data: await BranchService.restore(req.params.id)
     }).send(res)
   }
 }

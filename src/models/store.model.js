@@ -42,6 +42,7 @@ Store.init(
     sequelize,
     modelName: "Store",
     tableName: "stores",
+    paranoid: true,
     timestamps: true,
   }
 )

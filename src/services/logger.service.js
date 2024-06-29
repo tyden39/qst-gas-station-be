@@ -1,5 +1,5 @@
 const { Op, Sequelize } = require("sequelize")
-const Store = require("../models/store.model")
+const Logger = require("../models/logger.model")
 const Branch = require("../models/branch.model")
 const Company = require("../models/company.model")
 const { NotFoundError } = require("../core/error.response")
@@ -9,21 +9,22 @@ const {
   getCompanyFilter,
   getBranchFilter,
   getStoreFilter,
-} = require("../utils/permission")
+} = require("../utils/permission.v2")
+const Store = require("../models/store.model")
 const { PERMISSION } = require("../constants/auth/permission")
 
-class StoreService {
+class LoggerService {
   static async getSimpleList({ query, keyStore }) {
     const authUser = (await UserService.getUserById(keyStore.user)).toJSON()
-    
     const {
       // keyword, startDate, endDate,
       companyId,
       branchId,
+      storeId,
     } = query
     const companyFilter = getCompanyFilter(authUser, companyId)
     const branchFilter = getBranchFilter(authUser, branchId)
-    const storeFilter = getStoreFilter(authUser)
+    const storeFilter = getStoreFilter(authUser, storeId)
 
     // const pageSize = +query.pageSize
     // const page = +query.page
@@ -56,25 +57,37 @@ class StoreService {
       // ...keywordFilter,
     }
 
-    const { count, rows } = await Store.findAndCountAll({
+    const { count, rows } = await Logger.findAndCountAll({
       where,
       // limit: pageSize,
       // offset: offset,
       order: [["createdAt", "DESC"]],
       attributes: [
         "id",
-        "name",
-        "branchId",
-        [Sequelize.literal("`Branch->Company`.`id`"), "companyId"],
+        "Logger_ID",
+        "storeId",
+        [Sequelize.literal("`Store`.`name`"), "storeName"],
+        [Sequelize.literal("`Store->Branch`.`id`"), "branchId"],
+        [Sequelize.literal("`Store->Branch`.`name`"), "branchName"],
+        [Sequelize.literal("`Store->Branch->Company`.`id`"), "companyId"],
+        [Sequelize.literal("`Store->Branch->Company`.`name`"), "companyName"],
       ],
       include: [
         {
-          model: Branch,
-          where: { ...branchFilter },
+          model: Store,
+          attributes: [],
           include: [
             {
-              model: Company,
-              where: { ...companyFilter },
+              model: Branch,
+              attributes: [],
+              where: { ...branchFilter },
+              include: [
+                {
+                  model: Company,
+                  where: { ...companyFilter },
+                  attributes: [],
+                },
+              ],
             },
           ],
         },
@@ -93,31 +106,42 @@ class StoreService {
   }
 
   static async create(data) {
-    return await Store.create(data)
+    return await Logger.create(data)
   }
 
   static async getById(id) {
     const authUser = (await UserService.getUserById(keyStore.user)).toJSON()
     const isAdmin = authUser.roles[0] === PERMISSION.ADMINISTRATOR
 
-    return await Store.findOne({
+    return await Logger.findOne({
       where: { id },
       paranoid: !isAdmin,
       attributes: {
         include: [
-          [Sequelize.literal("`Branch`.`name`"), "branchName"],
-          [Sequelize.literal("`Branch->Company`.`name`"), "companyName"],
-          [Sequelize.literal("`Branch->Company`.`id`"), "companyId"],
+          [Sequelize.literal("`Store`.`name`"), "storeName"],
+          [Sequelize.literal("`Store->Branch`.`id`"), "branchId"],
+          [Sequelize.literal("`Store->Branch`.`name`"), "branchName"],
+          [Sequelize.literal("`Store->Branch->Company`.`id`"), "companyId"],
+          [Sequelize.literal("`Store->Branch->Company`.`name`"), "companyName"],
         ],
       },
       include: [
         {
-          model: Branch,
+          model: Store,
           attributes: [],
+          where: { ...storeFilter },
           include: [
             {
-              model: Company,
+              model: Branch,
               attributes: [],
+              where: { ...branchFilter },
+              include: [
+                {
+                  model: Company,
+                  where: { ...companyFilter },
+                  attributes: [],
+                },
+              ],
             },
           ],
         },
@@ -137,12 +161,7 @@ class StoreService {
 
     const keywordFilter = keyword
       ? {
-          [Op.or]: [
-            { name: { [Op.like]: `%${keyword}%` } },
-            { address: { [Op.like]: `%${keyword}%` } },
-            { email: { [Op.like]: `%${keyword}%` } },
-            { phone: { [Op.like]: `%${keyword}%` } },
-          ],
+          [Op.or]: [{ Logger_ID: { [Op.like]: `%${keyword}%` } }],
         }
       : {}
 
@@ -157,6 +176,7 @@ class StoreService {
 
     const companyFilter = getCompanyFilter(authUser, companyId)
     const branchFilter = getBranchFilter(authUser, branchId)
+    const storeFilter = getStoreFilter(authUser, storeId)
 
     // Combine filters
     const where = {
@@ -164,7 +184,7 @@ class StoreService {
       ...keywordFilter,
     }
 
-    const { count, rows } = await Store.findAndCountAll({
+    const { count, rows } = await Logger.findAndCountAll({
       where,
       paranoid: !isAdmin,
       limit: pageSize,
@@ -172,21 +192,30 @@ class StoreService {
       order: [["createdAt", "DESC"]],
       attributes: {
         include: [
-          [Sequelize.literal("`Branch`.`name`"), "branchName"],
-          [Sequelize.literal("`Branch->Company`.`name`"), "companyName"],
-          [Sequelize.literal("`Branch->Company`.`id`"), "companyId"],
+          [Sequelize.literal("`Store`.`name`"), "storeName"],
+          [Sequelize.literal("`Store->Branch`.`id`"), "branchId"],
+          [Sequelize.literal("`Store->Branch`.`name`"), "branchName"],
+          [Sequelize.literal("`Store->Branch->Company`.`id`"), "companyId"],
+          [Sequelize.literal("`Store->Branch->Company`.`name`"), "companyName"],
         ],
       },
       include: [
         {
-          model: Branch,
+          model: Store,
           attributes: [],
-          where: { ...branchFilter },
+          where: { ...storeFilter },
           include: [
             {
-              model: Company,
-              where: { ...companyFilter },
+              model: Branch,
               attributes: [],
+              where: { ...branchFilter },
+              include: [
+                {
+                  model: Company,
+                  where: { ...companyFilter },
+                  attributes: [],
+                },
+              ],
             },
           ],
         },
@@ -205,36 +234,33 @@ class StoreService {
   }
 
   static async update(id, data) {
-    const password = data.password
-      ? { password: await bcrypt.hash(data.password, 10) }
-      : {}
-    const editUser = { ...data, ...password }
+    const editData = { ...data }
 
-    const store = await Store.findOne({
+    const logger = await Logger.findOne({
       where: { id },
-      attributes: ["id", "name", "email", "phone", "address", "branchId"],
+      attributes: ["id", "Logger_ID", "branchId"],
     })
-    if (!store) {
-      throw new NotFoundError("Không tìm thấy cửa hàng cần chỉnh sửa!")
+    if (!logger) {
+      throw new NotFoundError("Không tìm thấy logger cần chỉnh sửa!")
     }
-    return await store.update(editUser)
+    return await logger.update(editData)
   }
 
   static async delete(id, force) {
-    const store = await Store.findByPk(id, { paranoid: !force })
-    if (!store) {
-      throw new NotFoundError("Không tìm thấy cửa hàng cần xóa!")
+    const logger = await Logger.findByPk(id, { paranoid: !force })
+    if (!logger) {
+      throw new NotFoundError("Không tìm thấy logger cần xóa!")
     }
-    await Store.destroy({ where: { id }, force: Boolean(force) })
+    await logger.destroy({ force: Boolean(force) })
   }
 
   static async restore(id) {
-    const store = await Store.findByPk(id, { paranoid: false })
-    if (!store) {
-      throw new NotFoundError("Không tìm thấy cửa hàng cần khôi phục!")
+    const logger = await Logger.findByPk(id, { paranoid: false })
+    if (!logger) {
+      throw new NotFoundError("Không tìm thấy logger cần khôi phục!")
     }
-    await store.restore()
+    await logger.restore()
   }
 }
 
-module.exports = StoreService
+module.exports = LoggerService

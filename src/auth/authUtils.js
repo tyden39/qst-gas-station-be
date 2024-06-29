@@ -26,9 +26,10 @@ const createTokenPair = async (payload) => {
       algorithm: "RS256",
     })
 
-    const refreshToken = await JWT.sign(payload, privateKey, {
-      algorithm: "RS256",
-    })
+    // const refreshToken = await JWT.sign(payload, privateKey, {
+    //   algorithm: "ES256",
+    // })
+    const refreshToken = ''
 
     JWT.verify(accessToken, publicKey, (err, decode) => {
       if (err) {
@@ -61,6 +62,13 @@ const createTokens = async ({ user }) => {
   return saveTokens
 }
 
+const createCompanyTokens = async ({ companyId, companyName }) => {
+
+  const token = await createTokenPair({ companyId, companyName })
+
+  return token.accessToken
+}
+
 const authentication = asyncHandler(async (req, res, next) => {
   try {
 
@@ -90,6 +98,7 @@ const verifyJWT = (token, keySecret) => {
 module.exports = {
   createTokenPair,
   createTokens,
+  createCompanyTokens,
   authentication,
   verifyJWT,
 }

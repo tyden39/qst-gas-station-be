@@ -11,5 +11,6 @@ router.post('/create', asyncHandler(storeController.create))
 router.get('/:id', asyncHandler(storeController.getOne))
 router.post('/edit/:id', asyncHandler(storeController.update))
 router.delete('/delete/:id', asyncHandler(storeController.delete))
+router.post('/restore/:id', asyncHandler(storeController.restore))
 
 module.exports = router

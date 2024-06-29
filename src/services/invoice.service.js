@@ -12,8 +12,14 @@ const Company = require("../models/company.model")
 const Store = require("../models/store.model")
 const UserService = require("./user.service")
 const { PERMISSION } = require("../constants/auth/permission")
-const { getCompanyFilter, getBranchFilter, getStoreFilter } = require("../utils/permission")
+const {
+  getCompanyFilter,
+  getBranchFilter,
+  getStoreFilter,
+} = require("../utils/permission")
 const { getStoreFilter: getStoreFilterV2 } = require("../utils/permission.v2")
+const Logger = require("../models/logger.model")
+const { includes } = require("lodash")
 
 class InvoiceService {
   static async createInvoice(data, keyStore) {
@@ -21,14 +27,8 @@ class InvoiceService {
 
     const userStore = getStoreFilterV2(authUser)
 
-    const loggerTimeDate = moment(
-      data.Logger_Time,
-      moment.ISO_8601
-    ).toDate()
-    const startTimeDate = moment(
-      data.Start_Time,
-      moment.ISO_8601
-    ).toDate()
+    const loggerTimeDate = moment(data.Logger_Time, moment.ISO_8601).toDate()
+    const startTimeDate = moment(data.Start_Time, moment.ISO_8601).toDate()
     const endTimeDate = moment(data.End_Time, moment.ISO_8601).toDate()
     try {
       const createdInvoice = await Invoice.create({
@@ -73,42 +73,46 @@ class InvoiceService {
   }
 
   static async getInvoiceById(params) {
+    const authUser = (await UserService.getUserById(keyStore.user)).toJSON()
+    const isAdmin = authUser.roles[0] === PERMISSION.ADMINISTRATOR
     const { id } = params
     const invoice = await Invoice.findOne({
       where: { Check_Key: id },
-      attributes: [
-        'Pump_ID',
-        "Logger_ID",
-        "Check_Key",
-        "Bill_No",
-        "Bill_Type",
-        "Logger_Time",
-        "Fuel_Type",
-        "Start_Time",
-        "End_Time",
-        "Unit_Price",
-        "Quantity",
-        "Unit_Price",
-        "Total_Price",
-        "storeId",
-        [Sequelize.literal("`Store`.`name`"), "storeName"],
-        [Sequelize.literal("`Store->Branch`.`name`"), "branchName"],
-        [Sequelize.literal("`Store->Branch`.`id`"), "branchId"],
-        [Sequelize.literal("`Store->Branch->Company`.`name`"), "companyName"],
-        [Sequelize.literal("`Store->Branch->Company`.`id`"), "companyId"],
-      ],
-      include: [{
-        model: Store,
-        attributes: [],
-        include: [{
-          model: Branch,
+      paranoid: !isAdmin,
+      attributes: {
+        include: [
+          [Sequelize.literal("`Logger->Store`.`id`"), "storeId"],
+          [Sequelize.literal("`Logger->Store`.`name`"), "storeName"],
+          [Sequelize.literal("`Logger->Store->Branch`.`id`"), "branchName"],
+          [Sequelize.literal("`Logger->Store->Branch`.`name`"), "branchName"],
+          [Sequelize.literal("`Logger->Store->Branch->Company`.`id`"), "companyName"],
+          [Sequelize.literal("`Logger->Store->Branch->Company`.`name`"), "companyName"],
+        ]
+      },
+      include: [
+        {
+          model: Logger,
           attributes: [],
-          include: [{
-            attributes: [],
-            model: Company,
-          }]
-        }]
-      }]
+          include: [
+            {
+              model: Store,
+              attributes: [],
+              include: [
+                {
+                  model: Branch,
+                  attributes: [],
+                  include: [
+                    {
+                      model: Company,
+                      attributes: [],
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+      ],
     })
     if (!invoice) throw new BadRequestError(`Không tìm thấy hóa đơn mã #${id}!`)
     return invoice
@@ -116,8 +120,17 @@ class InvoiceService {
 
   static async getInvoices({ query, selectAll, keyStore }) {
     const authUser = (await UserService.getUserById(keyStore.user)).toJSON()
+    const isAdmin = authUser.roles[0] === PERMISSION.ADMINISTRATOR
 
-    const { keyword, startDate, endDate, companyId, branchId, storeId } = query
+    const {
+      keyword,
+      startDate,
+      endDate,
+      companyId,
+      branchId,
+      storeId,
+      Logger_ID,
+    } = query
     const billType = +query.billType
     const fuelType = +query.fuelType
     const fuelTypeLabel =
@@ -130,6 +143,7 @@ class InvoiceService {
     const companyFilter = getCompanyFilter(authUser, companyId)
     const branchFilter = getBranchFilter(authUser, branchId)
     const storeFilter = getStoreFilter(authUser, storeId)
+    const loggerFilter = Logger_ID ? { Logger_ID: Logger_ID } : {}
 
     const keywordFilter = keyword
       ? {
@@ -177,25 +191,52 @@ class InvoiceService {
       ...billTypeFilter,
       ...fuelTypeFilter,
       ...pumpIdFilter,
+      ...loggerFilter
     }
 
     const { count, rows: invoices } = await Invoice.findAndCountAll({
       where,
+      paranoid: !isAdmin,
       limit: selectAll ? null : pageSize,
       offset: offset,
       order: [["Logger_Time", "DESC"]],
-      include: [{
-        model: Store,
-        where: { ...storeFilter },
-        include: [{
-          model: Branch,
-          where: { ...branchFilter },
-          include: [{
-            model: Company,
-            where: { ...companyFilter }
-          }]
-        }]
-      }]
+      attributes: {
+        include: [
+          [Sequelize.literal("`Logger->Store`.`id`"), "storeId"],
+          [Sequelize.literal("`Logger->Store`.`name`"), "storeName"],
+          [Sequelize.literal("`Logger->Store->Branch`.`id`"), "branchName"],
+          [Sequelize.literal("`Logger->Store->Branch`.`name`"), "branchName"],
+          [Sequelize.literal("`Logger->Store->Branch->Company`.`id`"), "companyName"],
+          [Sequelize.literal("`Logger->Store->Branch->Company`.`name`"), "companyName"],
+        ]
+      },
+      include: [
+        {
+          model: Logger,
+          attributes: [],
+          include: [
+            {
+              model: Store,
+              where: { ...storeFilter },
+              attributes: [],
+              include: [
+                {
+                  model: Branch,
+                  where: { ...branchFilter },
+                  attributes: [],
+                  include: [
+                    {
+                      model: Company,
+                      where: { ...companyFilter },
+                      attributes: [],
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+      ],
     })
 
     const totalPages = Math.ceil(count / pageSize)
@@ -223,18 +264,27 @@ class InvoiceService {
 
   static async updateInvoice(id, data) {
     const invoice = await Invoice.findOne({
-      where: { Check_Key: id }
+      where: { Check_Key: id },
+      paranoid: false,
     })
     if (!invoice) throw new BadRequestError(`Không tìm thấy hóa đơn mã #${id}!`)
     return await invoice.update(data)
   }
 
-  static async deleteInvoice(id) {
-    const invoice = await Invoice.findByPk(id)
+  static async deleteInvoice(id, force) {
+    const invoice = await Invoice.findByPk(id, { paranoid: !force })
     if (!invoice) {
       throw new Error(`Không tìm thấy hóa đơn mã #${id}`)
     }
-    return await invoice.destroy()
+    return await invoice.destroy({ force: Boolean(force) })
+  }
+
+  static async restore(id) {
+    const invoice = await Invoice.findByPk(id, { paranoid: false })
+    if (!invoice) {
+      throw new NotFoundError("Không tìm thấy hóa đơn cần khôi phục!")
+    }
+    await invoice.restore()
   }
 }
 

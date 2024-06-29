@@ -6,15 +6,6 @@ const Store = require("../models/store.model")
 const User = require("../models/user.model")
 const moment = require("moment")
 
-const initLogger = () => {
-  const loggers = []
-  loggers.forEach(async (item) => {
-    await Invoice.create({
-      ...item,
-    })
-  })
-}
-
 const initialData = async () => {
   const companyA = await Company.create({ name: "Company A" })
   const companyB = await Company.create({ name: "Company B" })
@@ -53,60 +44,62 @@ const initialData = async () => {
     branchId: branch3.id,
   })
 
-  await User.create({
-    username: "admin",
-    password: "123",
-    phone: "0987654321",
-    email: "admin@gmail.com",
-    firstName: "Admin",
-    lastName: "",
-    roles: ["000", "001", "002", "003", "004"],
-  })
-  await User.create({
-    username: "user1",
-    password: "123",
-    companyId: companyA.id,
-    phone: "0987654322",
-    email: "user1@gmail.com",
-    firstName: "Trần",
-    lastName: "Thị B",
-    roles: ["001", "002", "003", "004"],
-  })
-  await User.create({
-    username: "user2",
-    password: "123",
-    branchId: branch2.id,
-    companyId: companyA.id,
-    phone: "0987654323",
-    email: "user2@gmail.com",
-    firstName: "Lê",
-    lastName: "Văn C",
-    roles: ["002", "003", "004"],
-  })
-  await User.create({
-    username: "user3",
-    password: "123",
-    storeId: store3.id,
-    branchId: branch3.id,
-    companyId: companyB.id,
-    phone: "0987654324",
-    email: "user3@gmail.com",
-    firstName: "Phạm",
-    lastName: "Thị D",
-    roles: ["003", "004"],
-  })
-  await User.create({
-    username: "user4",
-    password: "123",
-    storeId: store3.id,
-    branchId: branch3.id,
-    companyId: companyB.id,
-    phone: "0987654325",
-    email: "user4@gmail.com",
-    firstName: "Hoàng",
-    lastName: "Văn E",
-    roles: ["004"],
-  })
+  await User.bulkCreate([
+    {
+      username: "admin",
+      password: "$2b$10$Lc1/ClVHzXaAcmZYVxSMHexR3UM9mjjkmdLnpYhJwwK1x.pmujf7q",
+      phone: "0987654321",
+      email: "admin@gmail.com",
+      firstName: "Admin",
+      lastName: "",
+      roles: ["000", "001", "002", "003", "004"],
+    },
+    {
+      username: "user1",
+      password: "$2b$10$Lc1/ClVHzXaAcmZYVxSMHexR3UM9mjjkmdLnpYhJwwK1x.pmujf7q",
+      companyId: companyA.id,
+      phone: "0987654322",
+      email: "user1@gmail.com",
+      firstName: "Trần",
+      lastName: "Thị B",
+      roles: ["001", "002", "003", "004"],
+    },
+    {
+      username: "user2",
+      password: "$2b$10$Lc1/ClVHzXaAcmZYVxSMHexR3UM9mjjkmdLnpYhJwwK1x.pmujf7q",
+      branchId: branch2.id,
+      companyId: companyA.id,
+      phone: "0987654323",
+      email: "user2@gmail.com",
+      firstName: "Lê",
+      lastName: "Văn C",
+      roles: ["002", "003", "004"],
+    },
+    {
+      username: "user3",
+      password: "$2b$10$Lc1/ClVHzXaAcmZYVxSMHexR3UM9mjjkmdLnpYhJwwK1x.pmujf7q",
+      storeId: store3.id,
+      branchId: branch3.id,
+      companyId: companyB.id,
+      phone: "0987654324",
+      email: "user3@gmail.com",
+      firstName: "Phạm",
+      lastName: "Thị D",
+      roles: ["003", "004"],
+    },
+    {
+      username: "user4",
+      password: "$2b$10$Lc1/ClVHzXaAcmZYVxSMHexR3UM9mjjkmdLnpYhJwwK1x.pmujf7q",
+      storeId: store3.id,
+      branchId: branch3.id,
+      companyId: companyB.id,
+      phone: "0987654325",
+      email: "user4@gmail.com",
+      firstName: "Hoàng",
+      lastName: "Văn E",
+      roles: ["004"],
+    },
+  ])
 
   const loggers = [
     {

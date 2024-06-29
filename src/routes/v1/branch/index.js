@@ -10,6 +10,7 @@ router.get('/simple-list', asyncHandler(branchController.getSimpleList))
 router.post('/edit/:id', asyncHandler(branchController.update))
 router.post('/create', asyncHandler(branchController.create))
 router.delete('/delete/:id', asyncHandler(branchController.delete))
+router.post('/restore/:id', asyncHandler(branchController.restore))
 router.get('/:id', asyncHandler(branchController.getOne))
 
 module.exports = router

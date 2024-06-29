@@ -5,9 +5,14 @@ const Company = require("../models/company.model")
 const { NotFoundError, BadRequestError } = require("../core/error.response")
 const bcrypt = require("bcrypt")
 const Store = require("../models/store.model")
-const { getCompanyFilter, getBranchFilter, getStoreFilter } = require("../utils/permission.v2")
+const {
+  getCompanyFilter,
+  getBranchFilter,
+  getStoreFilter,
+} = require("../utils/permission.v2")
 const KeyTokenService = require("./keyToken.service")
 const { update } = require("lodash")
+const { PERMISSION } = require("../constants/auth/permission")
 
 const getAllowRoles = (role) => {
   switch (role) {
@@ -36,14 +41,16 @@ class UserService {
   }
 
   static async createUser(data) {
-    const holderUser = await User.findOne({ where: {username: data.username} })
+    const holderUser = await User.findOne({
+      where: { username: data.username },
+    })
     if (holderUser) {
       throw new BadRequestError(`Tên đăng nhập "${data.username}" đã tồn tại!`)
     }
 
     const allowRoles = getAllowRoles(data.roles)
     data.roles = allowRoles
-    
+
     const passwordHash = await bcrypt.hash(data.password, 10)
     return await User.create({
       ...data,
@@ -51,9 +58,18 @@ class UserService {
     })
   }
 
-  static async getUserById(id) {
+  static async getUserById(id, keyStore) {
+    let authUser = null
+    if (keyStore)
+      authUser = await User.findOne({
+        where: { id },
+        paranoid: false,
+      })
+    const isAdmin = authUser?.roles[0] === PERMISSION.ADMINISTRATOR
+
     return await User.findOne({
       where: { id },
+      paranoid: keyStore ? !isAdmin : false,
       attributes: [
         "id",
         "username",
@@ -66,6 +82,7 @@ class UserService {
         "branchId",
         "companyId",
         "storeId",
+        "deletedAt",
         [Sequelize.literal("`Store`.`name`"), "storeName"],
         [Sequelize.literal("`Branch`.`name`"), "branchName"],
         [Sequelize.literal("`Company`.`name`"), "companyName"],
@@ -76,12 +93,14 @@ class UserService {
 
   static async getUsers({ query, keyStore }) {
     const authUser = (await UserService.getUserById(keyStore.user)).toJSON()
+    const isAdmin = authUser.roles[0] === PERMISSION.ADMINISTRATOR
+
     const { keyword, startDate, endDate, companyId, branchId, storeId } = query
 
     const companyFilter = getCompanyFilter(authUser, companyId)
     const branchFilter = getBranchFilter(authUser, branchId)
     const storeFilter = getStoreFilter(authUser, storeId)
-    const rolesFilter = {roles: authUser.roles}
+    const rolesFilter = { roles: authUser.roles }
 
     const pageSize = +query.pageSize
     const page = +query.page
@@ -119,6 +138,7 @@ class UserService {
 
     const { count, rows } = await User.findAndCountAll({
       where,
+      paranoid: !isAdmin,
       limit: pageSize,
       offset: offset,
       order: [["createdAt", "DESC"]],
@@ -134,29 +154,15 @@ class UserService {
         "branchId",
         "companyId",
         "storeId",
+        "deletedAt",
         [Sequelize.literal("`Store`.`name`"), "storeName"],
         [Sequelize.literal("`Branch`.`name`"), "branchName"],
         [Sequelize.literal("`Company`.`name`"), "companyName"],
       ],
-      // include: [{
-      //   model: Store,
-      //   where: {...storeFilter},
-      //   attributes: [],
-      //   include: [{
-      //     model: Branch,
-      //     where: { ...branchFilter },
-      //     attributes: [],
-      //     include: [{
-      //       model: Company,
-      //       where: { ...companyFilter },
-      //       attributes: [],
-      //     }]
-      //     }]
-      // }],
-      include: [Store, Branch, Company]
+      include: [Store, Branch, Company],
     })
 
-    const data = rows.filter(r => authUser.roles.includes(r.roles?.[0]))
+    const data = rows.filter((r) => authUser.roles.includes(r.roles?.[0]))
 
     return {
       data,
@@ -172,6 +178,7 @@ class UserService {
   static async updateUser(id, data) {
     const user = await User.findOne({
       where: { id },
+      paranoid: false,
       attributes: [
         "id",
         "username",
@@ -190,11 +197,11 @@ class UserService {
     if (!user) {
       throw new NotFoundError("Không tìm thấy người dùng")
     }
-    
+
     if (data.password) {
       const passwordMatch = await bcrypt.compare(data.password, user.password)
       if (!passwordMatch) {
-        const keyStore = await KeyTokenService.findByPropertyName('user', id)
+        const keyStore = await KeyTokenService.findByPropertyName("user", id)
         if (keyStore) await KeyTokenService.removeKeyById(keyStore.id)
 
         const encryptPassword = await bcrypt.hash(data.password, 10)
@@ -203,7 +210,7 @@ class UserService {
     }
 
     if (data.roles && data.roles !== user.roles) {
-      const keyStore = await KeyTokenService.findByPropertyName('user', id)
+      const keyStore = await KeyTokenService.findByPropertyName("user", id)
       if (keyStore) await KeyTokenService.removeKeyById(keyStore.id)
 
       const allowRoles = getAllowRoles(data.roles)
@@ -216,27 +223,21 @@ class UserService {
     return updatedUser
   }
 
-  static async deleteUser(id) {
-    const user = await User.findByPk(id)
+  static async deleteUser(id, force) {
+    const user = await User.findByPk(id, { paranoid: !force })
     if (!user) {
       throw new NotFoundError("Không tìm thấy người dùng")
     }
-    await User.destroy({ where: { id }, force: true })
+    await user.destroy({ force: Boolean(force) })
   }
 
-  // static async users {
-  // return await User.findAll({
-  //   include: [
-  //       {
-  //           model: Branch,
-  //           attributes: ['branchName']
-  //       },
-  //       {
-  //           model: Company,
-  //           attributes: ['companyName']
-  //       }
-  //   ]
-  // })}
+  static async restore(id) {
+    const user = await User.findByPk(id, { paranoid: false })
+    if (!user) {
+      throw new NotFoundError("Không tìm thấy người dùng cần khôi phục!")
+    }
+    await user.restore()
+  }
 }
 
 module.exports = UserService

@@ -4,6 +4,8 @@ const { NotFoundError } = require("../core/error.response")
 const bcrypt = require('bcrypt')
 const UserService = require("./user.service")
 const { getCompanyFilter } = require("../utils/permission")
+const { createCompanyTokens } = require("../auth/authUtils")
+const { PERMISSION } = require("../constants/auth/permission")
 
 class CompanyService {
   static async getSimpleList({ query, keyStore }) {
@@ -67,25 +69,26 @@ class CompanyService {
   }
 
   static async create(data) {
-    return await Company.create(data)
+    const newCompany = await Company.create(data)
+    const token = await createCompanyTokens(newCompany.id, newCompany.name)
+
+    return await newCompany.update({token})
   }
 
   static async getById(id) {
+    const authUser = (await UserService.getUserById(keyStore.user)).toJSON()
+    const isAdmin = authUser.roles[0] === PERMISSION.ADMINISTRATOR
+
     return await Company.findOne({
       where: { id },
-      attributes: [
-        "id",
-        "name",
-        "taxCode",
-        "email",
-        "phone",
-        "address",
-      ],
+      paranoid: !isAdmin,
     })
   }
 
-  static async getAll({ query }) {
+  static async getAll({ query, keyStore }) {
     const { keyword, startDate, endDate } = query
+    const authUser = (await UserService.getUserById(keyStore.user)).toJSON()
+    const isAdmin = authUser.roles[0] === PERMISSION.ADMINISTRATOR
 
     const pageSize = +query.pageSize
     const page = +query.page
@@ -123,14 +126,7 @@ class CompanyService {
       limit: pageSize,
       offset: offset,
       order: [["createdAt", "DESC"]],
-      attributes: [
-        "id",
-        "name",
-        "taxCode",
-        "email",
-        "phone",
-        "address",
-      ],
+      paranoid: !isAdmin,
     })
 
     return {
@@ -150,6 +146,7 @@ class CompanyService {
 
     const user = await Company.findOne({
       where: { id },
+      paranoid: false,
       attributes: [
         "id",
         "name",
@@ -165,12 +162,20 @@ class CompanyService {
     return await user.update(editUser)
   }
 
-  static async deleteOne(id) {
-    const user = await Company.findByPk(id)
-    if (!user) {
+  static async deleteOne(id, force) {
+    const company = await Company.findByPk(id, { paranoid: !force })
+    if (!company) {
       throw new NotFoundError(`Không tìm thấy công ty cần xóa!`)
     }
-    await Company.destroy({ where: { id }, force: true })
+    await company.destroy({ force: Boolean(force) })
+  }
+
+  static async restoreOne(id) {
+    const company = await Company.findByPk(id, { paranoid: false })
+    if (!company) {
+      throw new NotFoundError("Không tìm thấy công ty cần khôi phục!")
+    }
+    await company.restore()
   }
 }
 

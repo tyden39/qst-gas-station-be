@@ -20,29 +20,36 @@ class StoreController {
 
   getOne = async (req, res, next) => {
     new OK({
-      message: 'Get company success!',
+      message: 'Get stores success!',
       data: await StoreService.getById(req.params.id)
     }).send(res)
   }
 
   update = async (req, res, next) => {
     new OK({
-      message: 'Update company success!',
+      message: 'Update stores success!',
       data: await StoreService.update(req.params.id, req.body)
     }).send(res)
   }
 
   create = async (req, res, next) => {
     new CREATED({
-      message: 'Update company success!',
+      message: 'Update stores success!',
       data: await StoreService.create(req.body)
     }).send(res)
   }
 
   delete = async (req, res, next) => {
     new OK({
-      message: 'Delete company success!',
-      data: await StoreService.delete(req.params.id)
+      message: 'Delete stores success!',
+      data: await StoreService.delete(req.params.id, req.body.force)
+    }).send(res)
+  }
+
+  restore = async (req, res, next) => {
+    new OK({
+      message: 'Restore stores success!',
+      data: await StoreService.restore(req.params.id)
     }).send(res)
   }
 }

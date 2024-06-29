@@ -107,7 +107,14 @@ class InvoiceController {
   deleteInvoice = async (req, res, next) => {
     new OK({
       message: 'Delete invoice success!',
-      data: await InvoiceService.deleteInvoice(req.params.id)
+      data: await InvoiceService.deleteInvoice(req.params.id, req.body.force)
+    }).send(res)
+  }
+
+  restore = async (req, res, next) => {
+    new OK({
+      message: 'Restore invoice success!',
+      data: await InvoiceService.restore(req.params.id)
     }).send(res)
   }
 }
