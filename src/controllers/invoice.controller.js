@@ -1,10 +1,11 @@
 "use strict"
 
-const { BILL_TYPES } = require("../constants/invoice/filter")
+const { BILL_TYPES, FUEL_TYPE } = require("../constants/invoice/filter")
 const { CREATED, OK } = require("../core/success.response")
 const InvoiceService = require("../services/invoice.service")
 const excelJS = require("exceljs")
 const moment = require("moment")
+const { formatNumber } = require("../utils/number")
 
 class InvoiceController {
   importOneInvoice = async (req, res, next) => {
@@ -55,33 +56,99 @@ class InvoiceController {
 
     // Define columns in the worksheet
     worksheet.columns = [
-      { header: "STT", key: "order", width: 10 },
-      { header: "Mã Kiểm Tra", key: "Check_Key", width: 25 },
-      { header: "Mã Logger", key: "Logger_ID", width: 15 },
-      { header: "Thời Gian Ghi Log", key: "Logger_Time", width: 20 },
-      { header: "Mã Vòi Bơm", key: "Pump_ID", width: 10 },
-      { header: "Mã Hóa Đơn", key: "Bill_No", width: 10 },
-      { header: "Loại Hóa đơn", key: "Bill_Type", width: 10 },
-      { header: "Loại Nhiên Liệu", key: "Fuel_Type", width: 30 },
-      { header: "Thời Gian Bắt Đầu Bơm", key: "Start_Time", width: 20 },
-      { header: "Thời Gian Kết Thúc Bơm", key: "End_Time", width: 20 },
-      { header: "Giá", key: "Unit_Price", width: 10 },
+      { header: "Số thứ tự hóa đơn (*)", key: "order",  },
+      { header: "Ngày hóa đơn", key: "Logger_Time",  },
+      { header: "Tên khách hàng", key: "customerName" },
+      { header: "Địa chỉ", key: "address" },
+      { header: "Mã số thuế", key: "taxNumber" },
+      { header: "Người mua hàng", key: "buyer", values: '' },
+      { header: "Email", key: "email" },
+      { header: "Tiền thuế GTGT", key: "tax",  },
+      { header: "Hình thức thanh toán", key: "paymentType" },
+      { header: "Thuế suất GTGT (%)", key: "taxPercent", },
+      { header: "Tên hàng hóa/dịch vụ (*)", key: "Fuel_Type" },
+      { header: "ĐVT", key: "unit",  },
       { header: "Số Lượng", key: "Quantity", width: 10 },
-      { header: "Tổng Tiền", key: "Total_Price", width: 20 },
+      { header: "Giá", key: "Unit_Price", width: 10 },
+      { header: "Tổng Tiền", key: "Total_Price", width: 10 },
     ]
+
+    worksheet.columns.forEach(column => {
+      let maxLength = column.width;
+      column.eachCell({ includeEmpty: true }, cell => {
+          const columnLength = cell.value ? cell.value.toString().length : 0;
+          maxLength = Math.max(maxLength, columnLength);
+      });
+  
+      column.width = maxLength + 2;
+      
+      switch (column.key) {
+        case 'order':
+        case 'unit':
+        case 'taxPercent':
+        case 'Quantity':
+          column.alignment = { horizontal: 'center' }
+          break;
+        case 'Logger_Time':
+        case 'Unit_Price':
+        case 'Total_Price':
+        case 'tax':
+          column.alignment = { horizontal: 'right' }
+          break;
+      
+        default:
+          break;
+      }
+    });
 
     // Add data to the worksheet
     exportInvoices.forEach((invoice, index, array) => {
+      if (!invoice) return
+      const invoiceJson = invoice.toJSON()
+      const {Unit_Price, Quantity} = invoiceJson
+      const taxPercent = 10
+      const totalPrice = formatNumber(Number(invoiceJson.Total_Price))
+      const tax = formatNumber(Number(invoiceJson.Total_Price) * taxPercent / 100)
+
       const invoiceDateFormated = {
-        ...invoice.toJSON(),
-        order: array.length - index,
-        Bill_Type: BILL_TYPES.find(item => item.value === invoice.Bill_Type).label || '',
-        Logger_Time: moment(invoice.Logger_Time).format("DD-MM-YYYY HH:mm:ss"),
-        Start_Time: moment(invoice.Start_Time).format("DD-MM-YYYY HH:mm:ss"),
-        End_Time: moment(invoice.End_Time).format("DD-MM-YYYY HH:mm:ss"),
+        order: index + 1,
+        customerName: 'Xuất bán lẻ',
+        paymentType: 'Tiền mặt/Chuyển khoản',
+        taxNumber: '',
+        address: '',
+        email: '',
+        buyer: '',
+        taxPercent,
+        tax,
+        Quantity: formatNumber(Number(Quantity)),
+        unit: 'Lít',
+        Unit_Price: formatNumber(Number(Unit_Price)),
+        Total_Price: totalPrice,
+        Fuel_Type: FUEL_TYPE.find(item => item.value === invoiceJson.Fuel_Type)?.label || '',
+        Logger_Time: moment(invoice.Logger_Time).format("DD-MM-YYYY"),
       }
       worksheet.addRow(invoiceDateFormated)
     })
+
+    const titleRow = worksheet.getRow(1);
+    titleRow.height = 30
+    titleRow.eachCell(cell => {
+      cell.alignment = { horizontal: 'center', vertical: 'middle' };
+      cell.fill = {
+        type: 'pattern',
+        pattern: 'solid',
+        fgColor: { argb: 'ccccff' }
+      }
+      cell.font = {
+        bold: true
+      }
+      cell.border = {
+        top: { style: 'thin' },
+        left: { style: 'thin' },
+        bottom: { style: 'thin' },
+        right: { style: 'thin' }
+      }
+    });
 
     // Set up the response headers
     res.setHeader(
