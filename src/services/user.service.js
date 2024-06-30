@@ -58,7 +58,7 @@ class UserService {
     })
   }
 
-  static async getUserById(id, keyStore) {
+  static async getUserById({params: {id}, keyStore}) {
     let authUser = null
     if (keyStore)
       authUser = await User.findOne({
@@ -92,7 +92,7 @@ class UserService {
   }
 
   static async getUsers({ query, keyStore }) {
-    const authUser = (await UserService.getUserById(keyStore.user)).toJSON()
+    const authUser = keyStore
     const isAdmin = authUser.roles[0] === PERMISSION.ADMINISTRATOR
 
     const { keyword, startDate, endDate, companyId, branchId, storeId } = query

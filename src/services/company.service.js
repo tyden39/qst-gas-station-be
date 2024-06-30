@@ -6,11 +6,11 @@ const UserService = require("./user.service")
 const { getCompanyFilter } = require("../utils/permission")
 const { createCompanyTokens } = require("../auth/authUtils")
 const { PERMISSION } = require("../constants/auth/permission")
+const User = require("../models/user.model")
 
 class CompanyService {
   static async getSimpleList({ query, keyStore }) {
-    const authUser = (await UserService.getUserById(keyStore.user)).toJSON()
-    const companyFilter = getCompanyFilter(authUser)
+    const companyFilter = getCompanyFilter(keyStore)
 
     // const { keyword, startDate, endDate } = query
 
@@ -75,9 +75,8 @@ class CompanyService {
     return await newCompany.update({token})
   }
 
-  static async getById(id) {
-    const authUser = (await UserService.getUserById(keyStore.user)).toJSON()
-    const isAdmin = authUser.roles[0] === PERMISSION.ADMINISTRATOR
+  static async getById({params: {id}, keyStore}) {
+    const isAdmin = keyStore.roles[0] === PERMISSION.ADMINISTRATOR
 
     return await Company.findOne({
       where: { id },
@@ -87,8 +86,7 @@ class CompanyService {
 
   static async getAll({ query, keyStore }) {
     const { keyword, startDate, endDate } = query
-    const authUser = (await UserService.getUserById(keyStore.user)).toJSON()
-    const isAdmin = authUser.roles[0] === PERMISSION.ADMINISTRATOR
+    const isAdmin = keyStore.roles[0] === PERMISSION.ADMINISTRATOR
 
     const pageSize = +query.pageSize
     const page = +query.page

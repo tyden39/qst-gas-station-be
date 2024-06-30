@@ -21,7 +21,7 @@ class CompanyController {
   getOne = async (req, res, next) => {
     new OK({
       message: 'Get company success!',
-      data: await CompanyService.getById(req.params.id)
+      data: await CompanyService.getById(req)
     }).send(res)
   }
 

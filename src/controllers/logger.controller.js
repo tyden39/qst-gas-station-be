@@ -21,7 +21,7 @@ class StoreController {
   getOne = async (req, res, next) => {
     new OK({
       message: 'Get logger success!',
-      data: await LoggerService.getById(req.params.id)
+      data: await LoggerService.getById(req)
     }).send(res)
   }
 

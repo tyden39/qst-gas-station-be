@@ -14,7 +14,7 @@ const { PERMISSION } = require("../constants/auth/permission")
 
 class StoreService {
   static async getSimpleList({ query, keyStore }) {
-    const authUser = (await UserService.getUserById(keyStore.user)).toJSON()
+    const authUser = keyStore
     
     const {
       // keyword, startDate, endDate,
@@ -96,8 +96,8 @@ class StoreService {
     return await Store.create(data)
   }
 
-  static async getById(id) {
-    const authUser = (await UserService.getUserById(keyStore.user)).toJSON()
+  static async getById({params: {id}, keyStore}) {
+    const authUser = keyStore
     const isAdmin = authUser.roles[0] === PERMISSION.ADMINISTRATOR
 
     return await Store.findOne({
@@ -126,7 +126,7 @@ class StoreService {
   }
 
   static async getAll({ query, keyStore }) {
-    const authUser = (await UserService.getUserById(keyStore.user)).toJSON()
+    const authUser = keyStore
     const isAdmin = authUser.roles[0] === PERMISSION.ADMINISTRATOR
 
     const { keyword, startDate, endDate, companyId, branchId, storeId } = query

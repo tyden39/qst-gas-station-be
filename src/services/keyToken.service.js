@@ -1,11 +1,13 @@
 const KeyToken = require("../models/keytoken.model")
 
 class KeyTokenService {
-  static createKeyToken = async ({ userId, accessToken, refreshToken }) => {
+  static createKeyToken = async ({ userId, roles, companyId, branchId, storeId, accessToken, refreshToken }) => {
     try {
       const [tokens] = await KeyToken.upsert(
         {
           user: userId,
+          roles,
+          companyId, branchId, storeId, 
           refreshtokenUsed: [],
           refreshToken,
           accessToken,

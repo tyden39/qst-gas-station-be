@@ -21,7 +21,7 @@ class BranchController {
   getOne = async (req, res, next) => {
     new OK({
       message: 'Get branch success!',
-      data: await BranchService.getById(req.params.id)
+      data: await BranchService.getById(req)
     }).send(res)
   }
 

@@ -57,6 +57,10 @@ const createTokens = async ({ user }) => {
     accessToken: tokens.accessToken,
     refreshToken: tokens.refreshToken,
     userId,
+    roles: user.roles,
+    companyId: user.companyId,
+    branchId: user.branchId,
+    storeId: user.storeId,
   })
 
   return saveTokens

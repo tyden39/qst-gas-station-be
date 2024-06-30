@@ -9,6 +9,18 @@ KeyToken.init(
       type: DataTypes.UUID,
       allowNull: false
     },
+    roles: {
+      type: DataTypes.JSON,
+    },
+    storeId: {
+      type: DataTypes.UUID,
+    },
+    branchId: {
+      type: DataTypes.UUID,
+    },
+    companyId: {
+      type: DataTypes.UUID,
+    },
     accessToken: {
       type: DataTypes.TEXT,
       allowNull: false,

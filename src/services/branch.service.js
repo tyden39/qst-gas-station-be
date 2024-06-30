@@ -6,17 +6,16 @@ const bcrypt = require('bcrypt')
 const UserService = require("./user.service")
 const { getCompanyFilter, getBranchFilter } = require("../utils/permission")
 const { PERMISSION } = require("../constants/auth/permission")
+const User = require("../models/user.model")
 
 class BranchService {
   static async getSimpleList({ query, keyStore }) {
-    const authUser = (await UserService.getUserById(keyStore.user)).toJSON()
-
     const { 
       // keyword, startDate, endDate,
       companyId
     } = query
-    const companyFilter = getCompanyFilter(authUser, companyId)
-    const branchFilter = getBranchFilter(authUser)
+    const companyFilter = getCompanyFilter(keyStore, companyId)
+    const branchFilter = getBranchFilter(keyStore)
 
     // const pageSize = +query.pageSize
     // const page = +query.page
@@ -78,9 +77,10 @@ class BranchService {
     }
   }
 
-  static async getById(id) {
-    const authUser = (await UserService.getUserById(keyStore.user)).toJSON()
-    const isAdmin = authUser.roles[0] === PERMISSION.ADMINISTRATOR
+  static async getById({params: {id}, keyStore}) {
+    const {roles} = keyStore
+    const isAdmin = roles[0] === PERMISSION.ADMINISTRATOR
+    
     return await Branch.findOne({
       where: { id },
       paranoid: !isAdmin,
@@ -94,10 +94,11 @@ class BranchService {
   }
 
   static async getAll({ query, keyStore }) {
-    const { keyword, startDate, endDate } = query
+    const { keyword, startDate, endDate, companyId } = query
 
-    const authUser = (await UserService.getUserById(keyStore.user)).toJSON()
-    const isAdmin = authUser.roles[0] === PERMISSION.ADMINISTRATOR
+    const {roles} = keyStore
+    const isAdmin = roles[0] === PERMISSION.ADMINISTRATOR
+    const companyFilter = getCompanyFilter(keyStore, companyId)
 
     const pageSize = +query.pageSize
     const page = +query.page
@@ -141,7 +142,10 @@ class BranchService {
           [Sequelize.literal("`Company`.`name`"), "companyName"],
         ]
       },
-      include: [Company],
+      include: [{
+        model: Company,
+        where: { ...companyFilter }
+      }]
     })
 
     return {

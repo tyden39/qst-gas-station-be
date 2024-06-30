@@ -9,13 +9,13 @@ const {
   getCompanyFilter,
   getBranchFilter,
   getStoreFilter,
-} = require("../utils/permission.v2")
+} = require("../utils/permission")
 const Store = require("../models/store.model")
 const { PERMISSION } = require("../constants/auth/permission")
 
 class LoggerService {
   static async getSimpleList({ query, keyStore }) {
-    const authUser = (await UserService.getUserById(keyStore.user)).toJSON()
+    const authUser = keyStore
     const {
       // keyword, startDate, endDate,
       companyId,
@@ -109,8 +109,8 @@ class LoggerService {
     return await Logger.create(data)
   }
 
-  static async getById(id) {
-    const authUser = (await UserService.getUserById(keyStore.user)).toJSON()
+  static async getById({params: {id}, keyStore}) {
+    const authUser = keyStore
     const isAdmin = authUser.roles[0] === PERMISSION.ADMINISTRATOR
 
     return await Logger.findOne({
@@ -129,16 +129,13 @@ class LoggerService {
         {
           model: Store,
           attributes: [],
-          where: { ...storeFilter },
           include: [
             {
               model: Branch,
               attributes: [],
-              where: { ...branchFilter },
               include: [
                 {
                   model: Company,
-                  where: { ...companyFilter },
                   attributes: [],
                 },
               ],
@@ -150,7 +147,7 @@ class LoggerService {
   }
 
   static async getAll({ query, keyStore }) {
-    const authUser = (await UserService.getUserById(keyStore.user)).toJSON()
+    const authUser = keyStore
     const isAdmin = authUser.roles[0] === PERMISSION.ADMINISTRATOR
 
     const { keyword, startDate, endDate, companyId, branchId, storeId } = query

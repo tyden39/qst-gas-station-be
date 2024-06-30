@@ -31,7 +31,7 @@ class InvoiceController {
   getInvoice = async (req, res, next) => {
     new OK({
       message: "Get invoice success!",
-      data: await InvoiceService.getInvoiceById(req.params),
+      data: await InvoiceService.getInvoiceById(req),
     }).send(res)
   }
 

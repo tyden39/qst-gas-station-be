@@ -21,7 +21,7 @@ class UserController {
   getUser = async (req, res, next) => {
     new OK({
       message: 'Get user success!',
-      data: await UserService.getUserById(req.params.id)
+      data: await UserService.getUserById(req)
     }).send(res)
   }
 

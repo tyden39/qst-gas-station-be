@@ -20,10 +20,11 @@ const {
 const { getStoreFilter: getStoreFilterV2 } = require("../utils/permission.v2")
 const Logger = require("../models/logger.model")
 const { includes } = require("lodash")
+const User = require("../models/user.model")
 
 class InvoiceService {
   static async createInvoice(data, keyStore) {
-    const authUser = (await UserService.getUserById(keyStore.user)).toJSON()
+    const authUser = keyStore
 
     const userStore = getStoreFilterV2(authUser)
 
@@ -45,7 +46,7 @@ class InvoiceService {
   }
 
   static async importInvoice(data, keyStore) {
-    const authUser = (await UserService.getUserById(keyStore.user)).toJSON()
+    const authUser = keyStore
 
     const userStore = getStoreFilterV2(authUser)
 
@@ -72,8 +73,8 @@ class InvoiceService {
     }
   }
 
-  static async getInvoiceById(params) {
-    const authUser = (await UserService.getUserById(keyStore.user)).toJSON()
+  static async getInvoiceById({params, keyStore}) {
+    const authUser = keyStore
     const isAdmin = authUser.roles[0] === PERMISSION.ADMINISTRATOR
     const { id } = params
     const invoice = await Invoice.findOne({
@@ -119,7 +120,7 @@ class InvoiceService {
   }
 
   static async getInvoices({ query, selectAll, keyStore }) {
-    const authUser = (await UserService.getUserById(keyStore.user)).toJSON()
+    const authUser = keyStore
     const isAdmin = authUser.roles[0] === PERMISSION.ADMINISTRATOR
 
     const {
