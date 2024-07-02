@@ -8,7 +8,6 @@ const router = express.Router()
 
 // router.use(authentication)
 
-router.post('/import', asyncHandler(invoiceController.importOneInvoice))
 router.post('/create', asyncHandler(invoiceController.createInvoice))
 router.get('/list', asyncHandler(invoiceController.getInvoices))
 router.post('/edit/:id', asyncHandler(invoiceController.updateInvoice))

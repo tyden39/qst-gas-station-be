@@ -10,6 +10,8 @@ const {
 } = require("../core/error.response")
 const asyncHandler = require("../helpers/asyncHandler")
 const fs = require('fs');
+const CompanyService = require("../services/company.service")
+const Company = require("../models/company.model")
 
 const HEADER = {
   CLIENT_ID: "x-client-id",
@@ -66,11 +68,29 @@ const createTokens = async ({ user }) => {
   return saveTokens
 }
 
-const createCompanyTokens = async ({ companyId, companyName }) => {
+const createCompanyTokens = async (companyId, companyName) => {
 
   const token = await createTokenPair({ companyId, companyName })
 
   return token.accessToken
+}
+
+const authenticationCompany = async (req) => {
+  try {
+
+    const publicKey = await fs.readFileSync('./public.pem', 'utf8');
+    const accessToken = req.headers[HEADER.AUTHORIZATION]
+    if (!accessToken) throw new UnauthorizedError("Invalid token")
+
+    const decodeCompany = JWT.verify(accessToken, publicKey, { algorithms: ['RS256'] })
+
+    const company = await Company.findByPk(decodeCompany.companyId)
+    if (!company) throw new UnauthorizedError("Invalid token")
+
+    return company.toJSON()
+  } catch (error) {
+    throw new UnauthorizedError("Invalid token")
+  }
 }
 
 const authentication = asyncHandler(async (req, res, next) => {
@@ -105,4 +125,5 @@ module.exports = {
   createCompanyTokens,
   authentication,
   verifyJWT,
+  authenticationCompany
 }

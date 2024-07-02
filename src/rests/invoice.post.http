@@ -1,19 +1,23 @@
-@url_dev = http://localhost:3010/v1/api
-# @url_dev = https://api.gongka.online/v1/api
+# @url_dev = http://localhost:3010/api/v1
+@url_dev = https://api.qspeco.com/api/v1
 @accessToken = eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI1MTY4MjZiYy01ZmEwLTQxOWQtODU3NS1kMzNjMTBlMWEwODMiLCJ1c2VybmFtZSI6ImFkbWluIiwiaWF0IjoxNzE2Mzk5MjU5fQ.d4BPOiEOlDvXFzCJD9MWaqbT8-Z6n5AKrCvFiXUX8Yj8kbsiuTfNJC2qQ62LUmBU8hWyyzG5hhxi0fWUqMRYIDJaMVjRHEk_nJNidrQIixY-hbthutRkvQ5YtvwTfTGVvsBo3xTOFuo6T58zb4UXORLd-yghm1bPSW0gj0R9GpKe0skYlg3kXPKT32S1W-QAf8XuJf2fxaNzWqWq9zjIFoV8fDwOCTIV7KwoADBMHgM_fEWY4wwmkU7lJxQLmjelKcL28XxWyMeA0dv3qvJHYfCd_Z3p4iGnY4SyTfqmtSHXCYPT0e8y0EeC57iRwQieQyk0-PksH5sJP8IYrCr-Qg
 @userId = 657241821e3a2f6841b07a2c
 @apiKey = b6978370f03fe98bb4f280dc141b1ae2e0acff093965996f61aeee3bcc28c5c33f9254349838e91f3edd1a98b831dd7e5d6ee899e9dd0e36b8c6a32aba1b146a
+//Company B
+@companyToken = eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJjb21wYW55SWQiOiIwOTc4YmE1My1hMTc2LTQ4YjAtODM0YS1mN2ZhZWYwYjlmNWUiLCJjb21wYW55TmFtZSI6IkNvbXBhbnkgQiIsImlhdCI6MTcxOTkxMDMxNH0.cOIahuH2G_mjqL6rmCBzb0uS4oKGqBLH2xbiRUn01kffjQpnHLV9ax7wVY4kuHAKpyJTLcsfZhJxUx0B7P6wDPUjxdDrQ4wSkWdaXyRewq1Rk_wqjghOaQRKiU7uTY2wCno8-5sDFkRnUN7qqRFSI_9FHJrRoJmWCn6WBIemz0qXL2YDxpXZ1aZfQwLlrqZvu2DXcTczfLuV6QQmjyay3VOtJPbiZjN8A5NLpOSq_osR1Ym3owhetwpllIsSKfHksPH1DJDe36TKUen3mWEKmX0NbEoQNrDfpAm8mHxhz-drHIEFDh-NjK5pBJzrDN_1V8YTEYUBs15fxeg9wlui0Q
+@companyTokenPeco = eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJjb21wYW55SWQiOiI4NWZhOGMxZS1hZjhjLTQzNDgtYTZkMC1mZWJjZDNhYTczYzAiLCJjb21wYW55TmFtZSI6IkNvbXBhbnkgQiIsImlhdCI6MTcxOTkxMjU5MX0.o27DGa6LUeTzwcUMsD6_qcL999cVtrvWnbxqGXGLItcHIx00cBM3aHX79sZ-t6aGAnJN8_Zeq1RcCi8cr7WC7wgVCDS2llWsDT3UABwCZLT0Y-Nip3EMIaetIypsTw8Qc252oeM61aIdHcOF9y6PHp8Bqh90yXlHDjMUnp0VUs9FjUcbVQcBobv1G2SqjUsbQNRW7tqelXH42uu2omamQ5Iu_bV4FKULIBor9dKdSOrMPWT9_gW7RyFJKQkfEZBD6h-8-J5La3pglh6J0g2NqnzaT35DNE3MWF-eZL5qG__PAaLE3KeJ6VuO12oqYTKIXa_apkgAbFnvvGJuD3lUIA
 
 ### import invoice
 POST {{url_dev}}/invoice/import
 Content-Type: application/json
 X-API-Key: {{apiKey}}
 X-Client-ID: {{userId}}
-Authorization: {{accessToken}}
+# Authorization: {{companyToken}}
+Authorization: {{companyTokenPeco}}
 
 {
-  "Logger_ID": "01905969501",
-  "Check_Key": "T00R00K155528140524",
+  "Logger_ID": "01905969508",
+  "Check_Key": "T00R00K155528141524",
   "Logger_Time": "14-05-2024 15-55-28",
   "Pump_ID": 0,
   "Bill_No": 23,

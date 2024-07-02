@@ -76,7 +76,7 @@ class CompanyService {
   }
 
   static async getById({params: {id}, keyStore}) {
-    const isAdmin = keyStore.roles[0] === PERMISSION.ADMINISTRATOR
+    const isAdmin = keyStore?.roles[0] === PERMISSION.ADMINISTRATOR
 
     return await Company.findOne({
       where: { id },

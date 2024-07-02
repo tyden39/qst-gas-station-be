@@ -1,14 +1,14 @@
 const Branch = require("../models/branch.model")
-const Company = require("../models/company.model")
 const Invoice = require("../models/invoice.model")
 const Logger = require("../models/logger.model")
 const Store = require("../models/store.model")
 const User = require("../models/user.model")
 const moment = require("moment")
+const CompanyService = require("../services/company.service")
 
 const initialData = async () => {
-  const companyA = await Company.create({ name: "Company A" })
-  const companyB = await Company.create({ name: "Company B" })
+  const companyA = await CompanyService.create({ name: "Company A" })
+  const companyB = await CompanyService.create({ name: "Company B" })
 
   const branch1 = await Branch.create({
     name: "Branch 1",

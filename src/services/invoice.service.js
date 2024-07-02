@@ -4,6 +4,7 @@ const {
   BadRequestError,
   ConflictRequestError,
   UnauthorizedError,
+  NotFoundError,
 } = require("../core/error.response")
 const { Op, Sequelize } = require("sequelize")
 const { FUEL_TYPE } = require("../constants/invoice/filter")
@@ -21,6 +22,8 @@ const { getStoreFilter: getStoreFilterV2 } = require("../utils/permission.v2")
 const Logger = require("../models/logger.model")
 const { includes } = require("lodash")
 const User = require("../models/user.model")
+const LoggerService = require("./logger.service")
+const { authenticationCompany } = require("../auth/authUtils")
 
 class InvoiceService {
   static async createInvoice(data) {
@@ -40,7 +43,18 @@ class InvoiceService {
     }
   }
 
-  static async importInvoice(data) {
+  static async importInvoice(req) {
+    const data = req.body
+    const authCompany = await authenticationCompany(req)
+    const logger = (await LoggerService.findByPropertyName({force: true, propName: 'Logger_ID', value: data.Logger_ID})).toJSON()
+
+    if (!logger)
+      throw new BadRequestError(`Không tìm thấy Logger_ID #${data.Logger_ID}`)
+    if (logger.companyId !== authCompany.id)
+      throw new BadRequestError(
+        `Logger_ID ${logger.Logger_ID} không tồn tại trong công ty ${authCompany.name}`
+      )
+
     const loggerTimeDate = moment(
       data.Logger_Time,
       "DD-MM-YYYY HH:mm:ss"
@@ -63,7 +77,7 @@ class InvoiceService {
     }
   }
 
-  static async getInvoiceById({params, keyStore}) {
+  static async getInvoiceById({ params, keyStore }) {
     const authUser = keyStore
     const isAdmin = authUser.roles[0] === PERMISSION.ADMINISTRATOR
     const { id } = params
@@ -76,9 +90,15 @@ class InvoiceService {
           [Sequelize.literal("`Logger->Store`.`name`"), "storeName"],
           [Sequelize.literal("`Logger->Store->Branch`.`id`"), "branchId"],
           [Sequelize.literal("`Logger->Store->Branch`.`name`"), "branchName"],
-          [Sequelize.literal("`Logger->Store->Branch->Company`.`id`"), "companyId"],
-          [Sequelize.literal("`Logger->Store->Branch->Company`.`name`"), "companyName"],
-        ]
+          [
+            Sequelize.literal("`Logger->Store->Branch->Company`.`id`"),
+            "companyId",
+          ],
+          [
+            Sequelize.literal("`Logger->Store->Branch->Company`.`name`"),
+            "companyName",
+          ],
+        ],
       },
       include: [
         {
@@ -121,7 +141,7 @@ class InvoiceService {
       branchId,
       storeId,
       Logger_ID,
-      sortBy = [["Logger_Time", "DESC"]]
+      sortBy = [["Logger_Time", "DESC"]],
     } = query
     const billType = +query.billType
     const fuelType = +query.fuelType
@@ -183,7 +203,7 @@ class InvoiceService {
       ...billTypeFilter,
       ...fuelTypeFilter,
       ...pumpIdFilter,
-      ...loggerFilter
+      ...loggerFilter,
     }
 
     const { count, rows: invoices } = await Invoice.findAndCountAll({
@@ -198,9 +218,15 @@ class InvoiceService {
           [Sequelize.literal("`Logger->Store`.`name`"), "storeName"],
           [Sequelize.literal("`Logger->Store->Branch`.`id`"), "branchName"],
           [Sequelize.literal("`Logger->Store->Branch`.`name`"), "branchName"],
-          [Sequelize.literal("`Logger->Store->Branch->Company`.`id`"), "companyName"],
-          [Sequelize.literal("`Logger->Store->Branch->Company`.`name`"), "companyName"],
-        ]
+          [
+            Sequelize.literal("`Logger->Store->Branch->Company`.`id`"),
+            "companyName",
+          ],
+          [
+            Sequelize.literal("`Logger->Store->Branch->Company`.`name`"),
+            "companyName",
+          ],
+        ],
       },
       include: [
         {
@@ -256,7 +282,7 @@ class InvoiceService {
 
   static async updateInvoice(id, data) {
     const invoice = await Invoice.findOne({
-      where: { Check_Key: id },
+      where: { id },
       paranoid: false,
     })
     if (!invoice) throw new BadRequestError(`Không tìm thấy hóa đơn mã #${id}!`)

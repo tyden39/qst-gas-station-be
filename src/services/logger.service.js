@@ -2,7 +2,10 @@ const { Op, Sequelize } = require("sequelize")
 const Logger = require("../models/logger.model")
 const Branch = require("../models/branch.model")
 const Company = require("../models/company.model")
-const { NotFoundError } = require("../core/error.response")
+const {
+  NotFoundError,
+  ConflictRequestError,
+} = require("../core/error.response")
 const bcrypt = require("bcrypt")
 const UserService = require("./user.service")
 const {
@@ -76,7 +79,7 @@ class LoggerService {
         {
           model: Store,
           attributes: [],
-          where: {...storeFilter},
+          where: { ...storeFilter },
           include: [
             {
               model: Branch,
@@ -104,16 +107,71 @@ class LoggerService {
     }
   }
 
-  static async create({body, keyStore}) {
+  static async create({ body, keyStore }) {
     const authUser = keyStore
     const userStore = getStoreFilterV2(authUser)
 
-    return await Logger.create({...body, ...userStore})
+    const logger = await Logger.findOne({
+      where: { Logger_ID: body.Logger_ID },
+    })
+    if (logger)
+      throw new ConflictRequestError(`Đã tồn tại logger mã ${body.Logger_ID}!`)
+
+    return await Logger.create({ ...body, ...userStore })
   }
 
-  static async getById({params: {id}, keyStore}) {
+  static findByPropertyName = async ({propName, value, keyStore, force}) => {
     const authUser = keyStore
-    const isAdmin = authUser.roles[0] === PERMISSION.ADMINISTRATOR
+    const isAdmin = force ? true : authUser?.roles[0] === PERMISSION.ADMINISTRATOR
+
+    let propValue
+    switch (propName) {
+      default:
+        propValue = value
+        break
+    }
+
+    const condition = {}
+    condition[propName] = propValue
+
+    const result = await Logger.findOne({
+      where: condition,
+      paranoid: !isAdmin,
+      attributes: {
+        include: [
+          [Sequelize.literal("`Store`.`name`"), "storeName"],
+          [Sequelize.literal("`Store->Branch`.`id`"), "branchId"],
+          [Sequelize.literal("`Store->Branch`.`name`"), "branchName"],
+          [Sequelize.literal("`Store->Branch->Company`.`id`"), "companyId"],
+          [Sequelize.literal("`Store->Branch->Company`.`name`"), "companyName"],
+        ],
+      },
+      include: [
+        {
+          model: Store,
+          attributes: [],
+          include: [
+            {
+              model: Branch,
+              attributes: [],
+              include: [
+                {
+                  model: Company,
+                  attributes: [],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    })
+
+    return result
+  }
+
+  static async getById({ params: { id }, keyStore }) {
+    const authUser = keyStore
+    const isAdmin = authUser?.roles[0] === PERMISSION.ADMINISTRATOR
 
     return await Logger.findOne({
       where: { id },
@@ -235,10 +293,7 @@ class LoggerService {
   static async update(id, data) {
     const editData = { ...data }
 
-    const logger = await Logger.findOne({
-      where: { id },
-      attributes: ["id", "Logger_ID", "branchId"],
-    })
+    const logger = await Logger.findByPk(id)
     if (!logger) {
       throw new NotFoundError("Không tìm thấy logger cần chỉnh sửa!")
     }
