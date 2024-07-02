@@ -47,7 +47,7 @@ Store.init(
   }
 )
 
-Store.belongsTo(Branch, { foreignKey: "branchId", onDelete: "SET NULL" })
-Branch.hasMany(Store, { foreignKey: "branchId", onDelete: "SET NULL" })
+Store.belongsTo(Branch, { foreignKey: "branchId", onDelete: "CASCADE" })
+Branch.hasMany(Store, { foreignKey: "branchId", onDelete: "CASCADE" })
 
 module.exports = Store

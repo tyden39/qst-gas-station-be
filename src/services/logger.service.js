@@ -10,6 +10,7 @@ const {
   getBranchFilter,
   getStoreFilter,
 } = require("../utils/permission")
+const { getStoreFilter: getStoreFilterV2 } = require("../utils/permission.v2")
 const Store = require("../models/store.model")
 const { PERMISSION } = require("../constants/auth/permission")
 
@@ -18,12 +19,12 @@ class LoggerService {
     const authUser = keyStore
     const {
       // keyword, startDate, endDate,
-      companyId,
-      branchId,
+      // companyId,
+      // branchId,
       storeId,
     } = query
-    const companyFilter = getCompanyFilter(authUser, companyId)
-    const branchFilter = getBranchFilter(authUser, branchId)
+    // const companyFilter = getCompanyFilter(authUser, companyId)
+    // const branchFilter = getBranchFilter(authUser, branchId)
     const storeFilter = getStoreFilter(authUser, storeId)
 
     // const pageSize = +query.pageSize
@@ -52,7 +53,6 @@ class LoggerService {
 
     // // Combine filters
     const where = {
-      ...storeFilter,
       // ...dateFilter,
       // ...keywordFilter,
     }
@@ -76,15 +76,14 @@ class LoggerService {
         {
           model: Store,
           attributes: [],
+          where: {...storeFilter},
           include: [
             {
               model: Branch,
               attributes: [],
-              where: { ...branchFilter },
               include: [
                 {
                   model: Company,
-                  where: { ...companyFilter },
                   attributes: [],
                 },
               ],
@@ -105,8 +104,11 @@ class LoggerService {
     }
   }
 
-  static async create(data) {
-    return await Logger.create(data)
+  static async create({body, keyStore}) {
+    const authUser = keyStore
+    const userStore = getStoreFilterV2(authUser)
+
+    return await Logger.create({...body, ...userStore})
   }
 
   static async getById({params: {id}, keyStore}) {

@@ -2,7 +2,7 @@ const { Op, Sequelize } = require("sequelize")
 const User = require("../models/user.model")
 const Branch = require("../models/branch.model")
 const Company = require("../models/company.model")
-const { NotFoundError, BadRequestError } = require("../core/error.response")
+const { NotFoundError, ConflictRequestError } = require("../core/error.response")
 const bcrypt = require("bcrypt")
 const Store = require("../models/store.model")
 const {
@@ -37,6 +37,11 @@ class UserService {
       where: {
         username,
       },
+      attributes: {include: [
+        [Sequelize.literal("`Store`.`name`"), "storeName"],
+        [Sequelize.literal("`Branch`.`name`"), "branchName"],
+        [Sequelize.literal("`Company`.`name`"), "companyName"],]},
+      include: [Company, Branch, Store]
     })
   }
 
@@ -45,7 +50,7 @@ class UserService {
       where: { username: data.username },
     })
     if (holderUser) {
-      throw new BadRequestError(`Tên đăng nhập "${data.username}" đã tồn tại!`)
+      throw new ConflictRequestError(`Tên đăng nhập "${data.username}" đã tồn tại!`)
     }
 
     const allowRoles = getAllowRoles(data.roles)

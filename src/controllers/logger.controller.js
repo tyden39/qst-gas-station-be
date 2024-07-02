@@ -35,7 +35,7 @@ class StoreController {
   create = async (req, res, next) => {
     new CREATED({
       message: 'Update logger success!',
-      data: await LoggerService.create(req.body)
+      data: await LoggerService.create(req)
     }).send(res)
   }
 

@@ -23,17 +23,12 @@ const { includes } = require("lodash")
 const User = require("../models/user.model")
 
 class InvoiceService {
-  static async createInvoice(data, keyStore) {
-    const authUser = keyStore
-
-    const userStore = getStoreFilterV2(authUser)
-
+  static async createInvoice(data) {
     const loggerTimeDate = moment(data.Logger_Time, moment.ISO_8601).toDate()
     const startTimeDate = moment(data.Start_Time, moment.ISO_8601).toDate()
     const endTimeDate = moment(data.End_Time, moment.ISO_8601).toDate()
     try {
       const createdInvoice = await Invoice.create({
-        ...userStore,
         ...data,
         Logger_Time: loggerTimeDate,
         Start_Time: startTimeDate,
@@ -45,11 +40,7 @@ class InvoiceService {
     }
   }
 
-  static async importInvoice(data, keyStore) {
-    const authUser = keyStore
-
-    const userStore = getStoreFilterV2(authUser)
-
+  static async importInvoice(data) {
     const loggerTimeDate = moment(
       data.Logger_Time,
       "DD-MM-YYYY HH:mm:ss"
@@ -61,7 +52,6 @@ class InvoiceService {
     const endTimeDate = moment(data.End_Time, "DD-MM-YYYY HH:mm:ss").toDate()
     try {
       const createdInvoice = await Invoice.create({
-        ...userStore,
         ...data,
         Logger_Time: loggerTimeDate,
         Start_Time: startTimeDate,
@@ -78,15 +68,15 @@ class InvoiceService {
     const isAdmin = authUser.roles[0] === PERMISSION.ADMINISTRATOR
     const { id } = params
     const invoice = await Invoice.findOne({
-      where: { Check_Key: id },
+      where: { id },
       paranoid: !isAdmin,
       attributes: {
         include: [
           [Sequelize.literal("`Logger->Store`.`id`"), "storeId"],
           [Sequelize.literal("`Logger->Store`.`name`"), "storeName"],
-          [Sequelize.literal("`Logger->Store->Branch`.`id`"), "branchName"],
+          [Sequelize.literal("`Logger->Store->Branch`.`id`"), "branchId"],
           [Sequelize.literal("`Logger->Store->Branch`.`name`"), "branchName"],
-          [Sequelize.literal("`Logger->Store->Branch->Company`.`id`"), "companyName"],
+          [Sequelize.literal("`Logger->Store->Branch->Company`.`id`"), "companyId"],
           [Sequelize.literal("`Logger->Store->Branch->Company`.`name`"), "companyName"],
         ]
       },
@@ -131,6 +121,7 @@ class InvoiceService {
       branchId,
       storeId,
       Logger_ID,
+      sortBy = [["Logger_Time", "DESC"]]
     } = query
     const billType = +query.billType
     const fuelType = +query.fuelType
@@ -200,7 +191,7 @@ class InvoiceService {
       paranoid: !isAdmin,
       limit: selectAll ? null : pageSize,
       offset: offset,
-      order: [["Logger_Time", "DESC"]],
+      order: [...sortBy],
       attributes: {
         include: [
           [Sequelize.literal("`Logger->Store`.`id`"), "storeId"],

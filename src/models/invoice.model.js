@@ -18,6 +18,7 @@ Invoice.init(
         model: Logger,
         key: "Logger_ID",
       },
+      onDelete: 'CASCADE'
     },
     Logger_Time: {
       type: DataTypes.DATE,
@@ -68,7 +69,7 @@ Invoice.init(
   }
 )
 
-Invoice.belongsTo(Logger, { foreignKey: "Logger_ID", targetKey: 'Logger_ID' , onDelete: "SET NULL" })
-Logger.hasMany(Invoice, { foreignKey: "Logger_ID", sourceKey: 'Logger_ID' })
+Invoice.belongsTo(Logger, { foreignKey: "Logger_ID", targetKey: 'Logger_ID', onDelete: "CASCADE" })
+Logger.hasMany(Invoice, { foreignKey: "Logger_ID", sourceKey: 'Logger_ID', onDelete: "CASCADE"  })
 
 module.exports = Invoice

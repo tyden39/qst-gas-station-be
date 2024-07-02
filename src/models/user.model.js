@@ -77,11 +77,11 @@ User.init(
   }
 )
 
-User.belongsTo(Company, { foreignKey: "companyId", onDelete: "SET NULL" })
+User.belongsTo(Company, { foreignKey: "companyId", onDelete: "CASCADE" })
 Company.hasMany(User, { foreignKey: "companyId" })
-User.belongsTo(Branch, { foreignKey: "branchId", onDelete: "SET NULL" })
+User.belongsTo(Branch, { foreignKey: "branchId", onDelete: "CASCADE" })
 Branch.hasMany(User, { foreignKey: "branchId" })
-User.belongsTo(Store, { foreignKey: "storeId", onDelete: "SET NULL" })
+User.belongsTo(Store, { foreignKey: "storeId", onDelete: "CASCADE" })
 Store.hasMany(User, { foreignKey: "storeId" })
 
 module.exports = User

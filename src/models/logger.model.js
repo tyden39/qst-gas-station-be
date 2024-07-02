@@ -34,7 +34,7 @@ Logger.init(
   }
 )
 
-Logger.belongsTo(Store, { foreignKey: "storeId", onDelete: "SET NULL" })
-Store.hasMany(Logger, { foreignKey: "storeId", onDelete: "SET NULL" })
+Logger.belongsTo(Store, { foreignKey: "storeId", onDelete: "CASCADE" })
+Store.hasMany(Logger, { foreignKey: "storeId", onDelete: "CASCADE" })
 
 module.exports = Logger

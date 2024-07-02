@@ -1,19 +1,28 @@
-'use strict'
+"use strict"
 
-const User = require('../models/user.model')
-const bcrypt = require('bcrypt')
-const crypto = require('crypto')
-const KeyTokenService = require('./keyToken.service')
-const { createTokens, verifyJWT, createTokenPair } = require('../auth/authUtils')
-const { getInfoData } = require('../utils')
-const { BadRequestError, NotFoundError, UnauthorizedError, ForbiddenError } = require('../core/error.response')
-const {findByUsername} = require('./user.service')
+const User = require("../models/user.model")
+const bcrypt = require("bcrypt")
+const crypto = require("crypto")
+const KeyTokenService = require("./keyToken.service")
+const {
+  createTokens,
+  verifyJWT,
+  createTokenPair,
+} = require("../auth/authUtils")
+const { getInfoData } = require("../utils")
+const {
+  BadRequestError,
+  NotFoundError,
+  UnauthorizedError,
+  ForbiddenError,
+} = require("../core/error.response")
+const { findByUsername } = require("./user.service")
 
 const roleUser = {
-  ADMIN: '00001',
-  STORE_ADMIN: '00002',
-  READ: '00003',
-  WRITE: '00004',
+  ADMIN: "00001",
+  STORE_ADMIN: "00002",
+  READ: "00003",
+  WRITE: "00004",
 }
 
 class AccessService {
@@ -57,29 +66,54 @@ class AccessService {
     return await KeyTokenService.removeKeyById(keyStore.id)
   }
 
-  static login = async ({username, password, refreshToken = null}) => {
+  static login = async ({ username, password, refreshToken = null }) => {
     // check username
-    const foundUser = await findByUsername({username})
+    const foundUser = (await findByUsername({ username })).toJSON()
 
-    if(!foundUser) throw new BadRequestError('Tên đăng nhập hoặc mật khẩu không đúng!')
+    if (!foundUser)
+      throw new BadRequestError("Tên đăng nhập hoặc mật khẩu không đúng!")
 
     // check password
     const passwordMatch = await bcrypt.compare(password, foundUser.password)
-    if (!passwordMatch) throw new BadRequestError('Tên đăng nhập hoặc mật khẩu không đúng!')
-    
+    if (!passwordMatch)
+      throw new BadRequestError("Tên đăng nhập hoặc mật khẩu không đúng!")
+
     // create token
-    const tokens = await createTokens({user: foundUser})
+    const tokens = await createTokens({ user: foundUser })
 
     return {
-      user: getInfoData({fields: ['id', 'firstName', 'lastName', 'username', 'companyId', 'branchId', 'storeId', 'roles'], object: foundUser}),
-      tokens
+      user: getInfoData({
+        fields: [
+          "id",
+          "firstName",
+          "lastName",
+          "username",
+          "companyId",
+          "companyName",
+          "branchId",
+          "branchName",
+          "storeId",
+          "storeName",
+          "roles",
+        ],
+        object: foundUser,
+      }),
+      tokens,
     }
   }
 
-  static signUp = async ({ username, fullname, password, taxCode, email, status, roles }) => {
-    const holderUser = await User.findOne({ where: {username} }) // why don't use service (current is model)
+  static signUp = async ({
+    username,
+    fullname,
+    password,
+    taxCode,
+    email,
+    status,
+    roles,
+  }) => {
+    const holderUser = await User.findOne({ where: { username } }) // why don't use service (current is model)
     if (holderUser) {
-      throw new BadRequestError('Error: User already registed!')
+      throw new BadRequestError("Error: User already registed!")
     }
 
     const passwordHash = await bcrypt.hash(password, 10)
@@ -87,16 +121,18 @@ class AccessService {
       fullname,
       username,
       password: passwordHash,
-      taxCode, email, status,
+      taxCode,
+      email,
+      status,
       roles: roles ?? JSON.stringify([roleUser.ADMIN]),
     })
 
     if (newUser) {
-      const tokens = await createTokens({user: newUser})
+      const tokens = await createTokens({ user: newUser })
 
       return {
         user: getInfoData({
-          fields: ['id', 'email', 'fullname'],
+          fields: ["id", "email", "fullname"],
           object: newUser,
         }),
         tokens,
