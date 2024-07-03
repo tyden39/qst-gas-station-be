@@ -37,11 +37,12 @@ class InvoiceController {
   }
 
   exportExcel = async (req, res, next) => {
-    const ids = req.query.ids ? req.query.ids.split(',') : []
+    const selected = req.query.selected ? req.query.selected === 'all' ? [] : req.query.selected.split(',') : []
+    const unselected = req.query.unselected ? req.query.unselected.split(',') : []
 
     let exportInvoices = []
-    if (ids.length > 0) {
-      exportInvoices = await InvoiceService.getInvoicesWithIds(ids)
+    if (selected.length > 0 || unselected.length > 0) {
+      exportInvoices = await InvoiceService.getInvoicesWithIds(selected, unselected)
     } else {
       const { data: invoicesWithFilter } = await InvoiceService.getInvoices({
         query: req.query,
