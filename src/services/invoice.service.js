@@ -46,7 +46,13 @@ class InvoiceService {
   static async importInvoice(req) {
     const data = req.body
     const authCompany = await authenticationCompany(req)
-    const logger = (await LoggerService.findByPropertyName({force: true, propName: 'Logger_ID', value: data.Logger_ID})).toJSON()
+    const logger = (
+      await LoggerService.findByPropertyName({
+        force: true,
+        propName: "Logger_ID",
+        value: data.Logger_ID,
+      })
+    ).toJSON()
 
     if (!logger)
       throw new BadRequestError(`Không tìm thấy Logger_ID #${data.Logger_ID}`)
@@ -143,6 +149,7 @@ class InvoiceService {
       Logger_ID,
       sortBy = [["Logger_Time", "DESC"]],
     } = query
+
     const billType = +query.billType
     const fuelType = +query.fuelType
     const fuelTypeLabel =
@@ -270,12 +277,19 @@ class InvoiceService {
     }
   }
 
-  static async getInvoicesWithIds(ids) {
+  static async getInvoicesWithIds(selected, unselected) {
+    const idFilter =
+      unselected.length > 0
+        ? {
+            [Op.notIn]: unselected,
+          }
+        : {
+            [Op.in]: selected,
+          }
+          
     return await Invoice.findAll({
       where: {
-        id: {
-          [Op.in]: ids,
-        },
+        id: idFilter,
       },
     })
   }
