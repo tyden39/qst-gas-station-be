@@ -60,8 +60,8 @@ const initialData = async () => {
       companyId: companyA.id,
       phone: "0987654322",
       email: "user1@gmail.com",
-      firstName: "Trần",
-      lastName: "Thị B",
+      firstName: "Thị B",
+      lastName: "Trần",
       roles: ["001", "002", "003", "004"],
     },
     {
@@ -71,8 +71,8 @@ const initialData = async () => {
       companyId: companyA.id,
       phone: "0987654323",
       email: "user2@gmail.com",
-      firstName: "Lê",
-      lastName: "Văn C",
+      lastName: "Lê",
+      firstName: "Văn C",
       roles: ["002", "003", "004"],
     },
     {

@@ -20,17 +20,17 @@ Invoice.init(
       },
       onDelete: 'CASCADE'
     },
-    Logger_Time: {
-      type: DataTypes.DATE,
-    },
     Check_Key: {
       type: DataTypes.STRING,
       allowNull: false,
       primaryKey: true,
       unique: {
         name: "unique_check_key",
-        msg: "duplicate Check Key",
+        msg: "Duplicate Check Key",
       },
+    },
+    Logger_Time: {
+      type: DataTypes.DATE,
     },
     Pump_ID: {
       type: DataTypes.INTEGER,
