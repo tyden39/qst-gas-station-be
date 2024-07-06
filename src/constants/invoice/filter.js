@@ -7,7 +7,7 @@ exports.BILL_TYPES = [
   {id: 5, value: 5, label: "Xuất ngay cần rà soát lại"}
 ]
 
-export const FUEL_TYPE = [
+exports.FUEL_TYPE = [
   {id: 0, value: "0", label: "XĂNG RON 92"},
 	{id: 1, value: "1", label: "XĂNG RON 92 - II"},
 	{id: 2, value: "2", label: "XĂNG RON 95"},
