@@ -210,11 +210,13 @@ class LoggerService {
     const authUser = keyStore
     const isAdmin = authUser.roles[0] === PERMISSION.ADMINISTRATOR
 
-    const { keyword, startDate, endDate, companyId, branchId, storeId } = query
+    const { keyword, startDate, endDate, companyId, branchId, storeId, sortBy } = query
 
     const pageSize = +query.pageSize
     const page = +query.page
     const offset = (page - 1) * pageSize
+
+    const sortByFilter = JSON.parse(sortBy) || [["createdAt", "DESC"]]
 
     const keywordFilter = keyword
       ? {
@@ -246,7 +248,7 @@ class LoggerService {
       paranoid: !isAdmin,
       limit: pageSize,
       offset: offset,
-      order: [["createdAt", "DESC"]],
+      order: [...sortByFilter],
       attributes: {
         include: [
           [Sequelize.literal("`Store`.`name`"), "storeName"],

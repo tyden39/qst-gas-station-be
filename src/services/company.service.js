@@ -85,12 +85,14 @@ class CompanyService {
   }
 
   static async getAll({ query, keyStore }) {
-    const { keyword, startDate, endDate } = query
+    const { keyword, startDate, endDate, sortBy } = query
     const isAdmin = keyStore.roles[0] === PERMISSION.ADMINISTRATOR
 
     const pageSize = +query.pageSize
     const page = +query.page
     const offset = (page - 1) * pageSize
+
+    const sortByFilter = JSON.parse(sortBy) || [["createdAt", "DESC"]]
 
     const keywordFilter = keyword
       ? {
@@ -123,7 +125,7 @@ class CompanyService {
       where,
       limit: pageSize,
       offset: offset,
-      order: [["createdAt", "DESC"]],
+      order: [...sortByFilter],
       paranoid: !isAdmin,
     })
 

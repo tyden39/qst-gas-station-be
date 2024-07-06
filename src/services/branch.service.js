@@ -94,7 +94,7 @@ class BranchService {
   }
 
   static async getAll({ query, keyStore }) {
-    const { keyword, startDate, endDate, companyId } = query
+    const { keyword, startDate, endDate, companyId, sortBy } = query
 
     const {roles} = keyStore
     const isAdmin = roles[0] === PERMISSION.ADMINISTRATOR
@@ -103,6 +103,8 @@ class BranchService {
     const pageSize = +query.pageSize
     const page = +query.page
     const offset = (page - 1) * pageSize
+
+    const sortByFilter = JSON.parse(sortBy) || [["createdAt", "DESC"]]
 
     const keywordFilter = keyword
       ? {
@@ -136,7 +138,7 @@ class BranchService {
       paranoid: !isAdmin,
       limit: pageSize,
       offset: offset,
-      order: [["createdAt", "DESC"]],
+      order: [...sortByFilter],
       attributes: {
         include: [
           [Sequelize.literal("`Company`.`name`"), "companyName"],

@@ -147,8 +147,10 @@ class InvoiceService {
       branchId,
       storeId,
       Logger_ID,
-      sortBy = [["Logger_Time", "DESC"]],
+      sortBy,
     } = query
+
+    const sortByFilter = JSON.parse(sortBy) || [["Logger_Time", "DESC"]]
 
     const billType = +query.billType
     const fuelType = +query.fuelType
@@ -218,7 +220,7 @@ class InvoiceService {
       paranoid: !isAdmin,
       limit: selectAll ? null : pageSize,
       offset: offset,
-      order: [...sortBy],
+      order: [...sortByFilter],
       attributes: {
         include: [
           [Sequelize.literal("`Logger->Store`.`id`"), "storeId"],
