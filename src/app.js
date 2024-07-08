@@ -17,13 +17,9 @@ app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 
 // db
-const dbSyncForce = false
-sequelize
-  .sync({ force: dbSyncForce })
+sequelize.authenticate()
   .then(async () => {
     console.log("Connection has been established successfully.")
-
-    if (dbSyncForce) await initialData()
   })
   .catch((error) => console.error("Unable to connect to the database:", error))
 
