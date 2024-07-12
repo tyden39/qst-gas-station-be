@@ -125,7 +125,7 @@ class InvoiceController {
         unit: 'Lít',
         Unit_Price: formatNumber(Number(Unit_Price)),
         Total_Price: totalPrice,
-        Fuel_Type: FUEL_TYPE.find(item => item.value === invoiceJson.Fuel_Type)?.label || '',
+        Fuel_Type: invoiceJson.Fuel_Type || '',
         Logger_Time: moment(invoice.Logger_Time).format("DD-MM-YYYY"),
       }
       worksheet.addRow(invoiceDateFormated)
@@ -176,6 +176,20 @@ class InvoiceController {
     new OK({
       message: 'Delete invoice success!',
       data: await InvoiceService.deleteInvoice(req.params.id, req.body.force)
+    }).send(res)
+  }
+
+  deleteBulk = async (req, res, next) => {
+    new OK({
+      message: 'Delete invoices success!',
+      data: await InvoiceService.deleteBulk(req.body)
+    }).send(res)
+  }
+
+  restoreBulk = async (req, res, next) => {
+    new OK({
+      message: 'Restore invoices success!',
+      data: await InvoiceService.restoreBulk(req.body)
     }).send(res)
   }
 

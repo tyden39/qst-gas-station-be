@@ -5,7 +5,7 @@
 @apiKey = b6978370f03fe98bb4f280dc141b1ae2e0acff093965996f61aeee3bcc28c5c33f9254349838e91f3edd1a98b831dd7e5d6ee899e9dd0e36b8c6a32aba1b146a
 //Company B
 @companyToken = eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJjb21wYW55SWQiOiIwOTc4YmE1My1hMTc2LTQ4YjAtODM0YS1mN2ZhZWYwYjlmNWUiLCJjb21wYW55TmFtZSI6IkNvbXBhbnkgQiIsImlhdCI6MTcxOTkxMDMxNH0.cOIahuH2G_mjqL6rmCBzb0uS4oKGqBLH2xbiRUn01kffjQpnHLV9ax7wVY4kuHAKpyJTLcsfZhJxUx0B7P6wDPUjxdDrQ4wSkWdaXyRewq1Rk_wqjghOaQRKiU7uTY2wCno8-5sDFkRnUN7qqRFSI_9FHJrRoJmWCn6WBIemz0qXL2YDxpXZ1aZfQwLlrqZvu2DXcTczfLuV6QQmjyay3VOtJPbiZjN8A5NLpOSq_osR1Ym3owhetwpllIsSKfHksPH1DJDe36TKUen3mWEKmX0NbEoQNrDfpAm8mHxhz-drHIEFDh-NjK5pBJzrDN_1V8YTEYUBs15fxeg9wlui0Q
-@companyTokenPeco = eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJjb21wYW55SWQiOiI4NWZhOGMxZS1hZjhjLTQzNDgtYTZkMC1mZWJjZDNhYTczYzAiLCJjb21wYW55TmFtZSI6IkNvbXBhbnkgQiIsImlhdCI6MTcxOTkxMjU5MX0.o27DGa6LUeTzwcUMsD6_qcL999cVtrvWnbxqGXGLItcHIx00cBM3aHX79sZ-t6aGAnJN8_Zeq1RcCi8cr7WC7wgVCDS2llWsDT3UABwCZLT0Y-Nip3EMIaetIypsTw8Qc252oeM61aIdHcOF9y6PHp8Bqh90yXlHDjMUnp0VUs9FjUcbVQcBobv1G2SqjUsbQNRW7tqelXH42uu2omamQ5Iu_bV4FKULIBor9dKdSOrMPWT9_gW7RyFJKQkfEZBD6h-8-J5La3pglh6J0g2NqnzaT35DNE3MWF-eZL5qG__PAaLE3KeJ6VuO12oqYTKIXa_apkgAbFnvvGJuD3lUIA
+@companyTokenPeco = eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJjb21wYW55SWQiOiIyYWZiMzdiNi01MzFlLTQ3ZjEtOGE4MC0zOGY5OTJhNDFmZmYiLCJjb21wYW55TmFtZSI6IkPDtG5nIHR5IFROSEggVMOieSBUaOG7i25oIHRlc3QiLCJpYXQiOjE3MjAzNTc1Mjl9.jIiZPoxnzJyMWz6zR8FoT7XCcfxVGx-eov1wf-FBfqLyrMyCXnD2P2bQoDvAtryLj6XR3QIqIwHPpcTR2SCDhjJfBU4oYqfBvBdsGCXWA2RegkA2S8xUZg1mywqTnJh5Fn2QHnGyt_Byy3uMgUK9Y6IOr1-eGj0WRwjIPAL3VCFvbZA-g7YRf1GEKkp3PW1AEQ_HZ9Ki9PkRfZI5IpCfUwKBedIj4P5rgUcPTcR4vxrxKjXPDLHSdRFn7zI_M_x3iOh2pdjQ-RomSVnN0aVYnijx40CPRAwvSHzO68FxuFCu38R6NPaVebOmSq0B6tITTuG5Y-1Sm9JYW1aRuRXUyQ
 
 ### import invoice
 POST {{url_dev}}/invoice/import
@@ -15,20 +15,7 @@ X-Client-ID: {{userId}}
 # Authorization: {{companyToken}}
 Authorization: {{companyTokenPeco}}
 
-{
-  "Logger_ID": "01905969508",
-  "Check_Key": "T00R00K155528141524",
-  "Logger_Time": "14-05-2024 15-55-28",
-  "Pump_ID": 0,
-  "Bill_No": 23,
-  "Bill_Type": 1,
-  "Fuel_Type": "XĂNG RON 95 - III",
-  "Start_Time": "12-04-2024 16-51-21",
-  "End_Time": "12-04-2024 16-52-50",
-  "Unit_Price": 25740,
-  "Quantity": 0.545,
-  "Total_Price": 14020
-}
+{"Check_Key":"T00R00K071232100724","Logger_ID":"01905969501","Logger_Time":"2024-07-09T17:00:00.000Z","Pump_ID":"2","Bill_No":"12","Bill_Type":"0","Fuel_Type":"XĂNG RON 92 - II","Start_Time":"2024-07-09T17:00:00.000Z","End_Time":"2024-07-09T17:00:00.000Z","Unit_Price":"12","Quantity":"12","Total_Price":"7","companyId":"96ffd85a-943d-4fd3-ad78-13cf6a09cf91","branchId":"cdee758e-d0cb-418d-8da7-02514ec94933","storeId":"a93b3eda-e77e-42fe-b6d5-3f7a41411f88"}
 
 ### get invoices
 GET {{url_dev}}/invoice/list

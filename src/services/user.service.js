@@ -102,7 +102,7 @@ class UserService {
 
     const { keyword, startDate, endDate, companyId, branchId, storeId, sortBy } = query
 
-    const sortByFilter = JSON.parse(sortBy) || [["createdAt", "DESC"]]
+    const sortByFilter = sortBy && sortBy.lenght > 0 ? JSON.parse(sortBy) : [["createdAt", "DESC"]]
     const companyFilter = getCompanyFilter(authUser, companyId)
     const branchFilter = getBranchFilter(authUser, branchId)
     const storeFilter = getStoreFilter(authUser, storeId)

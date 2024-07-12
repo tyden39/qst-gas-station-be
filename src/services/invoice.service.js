@@ -18,7 +18,6 @@ const {
   getBranchFilter,
   getStoreFilter,
 } = require("../utils/permission")
-const { getStoreFilter: getStoreFilterV2 } = require("../utils/permission.v2")
 const Logger = require("../models/logger.model")
 const { includes } = require("lodash")
 const User = require("../models/user.model")
@@ -150,12 +149,12 @@ class InvoiceService {
       sortBy,
     } = query
 
-    const sortByFilter = JSON.parse(sortBy) || [["Logger_Time", "DESC"]]
+    const sortByFilter =
+      sortBy && sortBy.lenght > 0 ? JSON.parse(sortBy) : [["createdAt", "DESC"]]
 
     const billType = +query.billType
-    const fuelType = +query.fuelType
-    const fuelTypeLabel =
-      FUEL_TYPE.find((item) => item.id === fuelType)?.label ?? ""
+    const fuelType = query.fuelType
+    const fuelTypeLabel = fuelType ?? ""
     const pumpId = +query.pumpId
     const pageSize = +query.pageSize
     const page = +query.page
@@ -169,7 +168,6 @@ class InvoiceService {
     const keywordFilter = keyword
       ? {
           [Op.or]: [
-            { id: { [Op.like]: `%${keyword}%` } },
             { Logger_ID: { [Op.like]: `%${keyword}%` } },
             { Check_Key: { [Op.like]: `%${keyword}%` } },
           ],
@@ -193,7 +191,7 @@ class InvoiceService {
         : {}
 
     const fuelTypeFilter =
-      fuelType >= 0
+      fuelType
         ? {
             Fuel_Type: fuelTypeLabel,
           }
@@ -212,7 +210,6 @@ class InvoiceService {
       ...billTypeFilter,
       ...fuelTypeFilter,
       ...pumpIdFilter,
-      ...loggerFilter,
     }
 
     const { count, rows: invoices } = await Invoice.findAndCountAll({
@@ -241,6 +238,7 @@ class InvoiceService {
         {
           model: Logger,
           attributes: [],
+          where: { ...loggerFilter },
           include: [
             {
               model: Store,
@@ -288,7 +286,7 @@ class InvoiceService {
         : {
             [Op.in]: selected,
           }
-          
+
     return await Invoice.findAll({
       where: {
         id: idFilter,
@@ -310,7 +308,61 @@ class InvoiceService {
     if (!invoice) {
       throw new Error(`Không tìm thấy hóa đơn mã #${id}`)
     }
+
     return await invoice.destroy({ force: Boolean(force) })
+  }
+
+  static async deleteBulk(query) {
+    const selected = query.selected
+      ? query.selected === "all"
+        ? []
+        : query.selected
+      : []
+    const unselected = query.unselected ? query.unselected : []
+    const idFilter =
+      unselected.length > 0
+        ? {
+            [Op.notIn]: unselected,
+          }
+        : {
+            [Op.in]: selected,
+          }
+
+    await Invoice.destroy({
+      where:
+        query.selected === "all"
+          ? {}
+          : {
+              id: idFilter,
+            },
+      force: Boolean(query.force),
+    })
+  }
+
+  static async restoreBulk(query) {
+    const selected = query.selected
+      ? query.selected === "all"
+        ? []
+        : query.selected
+      : []
+    const unselected = query.unselected ? query.unselected : []
+    const idFilter =
+      unselected.length > 0
+        ? {
+            [Op.notIn]: unselected,
+          }
+        : {
+            [Op.in]: selected,
+          }
+
+    await Invoice.restore({
+      where:
+        query.selected === "all"
+          ? {}
+          : {
+              id: idFilter,
+            },
+    })
   }
 
   static async restore(id) {

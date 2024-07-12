@@ -64,7 +64,7 @@ class LoggerService {
       where,
       // limit: pageSize,
       // offset: offset,
-      order: [["createdAt", "DESC"]],
+      order: [["Logger_ID", "ASC"]],
       attributes: [
         "id",
         "Logger_ID",
@@ -216,7 +216,7 @@ class LoggerService {
     const page = +query.page
     const offset = (page - 1) * pageSize
 
-    const sortByFilter = JSON.parse(sortBy) || [["createdAt", "DESC"]]
+    const sortByFilter = sortBy && sortBy.lenght > 0 ? JSON.parse(sortBy) : [["createdAt", "DESC"]]
 
     const keywordFilter = keyword
       ? {

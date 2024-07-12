@@ -50,7 +50,7 @@ class CompanyService {
       where,
       // limit: pageSize,
       // offset: offset,
-      order: [["createdAt", "DESC"]],
+      order: [["name", "ASC"]],
       attributes: [
         "id",
         "name",
@@ -92,7 +92,7 @@ class CompanyService {
     const page = +query.page
     const offset = (page - 1) * pageSize
 
-    const sortByFilter = JSON.parse(sortBy) || [["createdAt", "DESC"]]
+    const sortByFilter = sortBy && sortBy.lenght > 0 ? JSON.parse(sortBy) : [["createdAt", "DESC"]]
 
     const keywordFilter = keyword
       ? {
