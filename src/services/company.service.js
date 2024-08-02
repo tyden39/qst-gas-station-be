@@ -10,9 +10,11 @@ const User = require("../models/user.model")
 
 class CompanyService {
   static async getSimpleList({ query, keyStore }) {
+    // const { 
+    //   // keyword, startDate, endDate,
+    //   companyId
+    // } = query
     const companyFilter = getCompanyFilter(keyStore)
-
-    // const { keyword, startDate, endDate } = query
 
     // const pageSize = +query.pageSize
     // const page = +query.page

@@ -10,16 +10,15 @@ exports.getCompanyFilter = (authUser, companyId) => {
         ? { id: authUser.companyId }
         : {}
     case COMPANY:
+    case BRANCH:
+    case STORE:
+    case STORE_READ_ONLY:
+    default:
       if (!authUser.companyId)
         throw new UnauthorizedError(
           `Người dùng ${authUser.username} chưa được chỉ định công ty!`
         )
       return { id: authUser.companyId }
-    case BRANCH:
-    case STORE:
-    case STORE_READ_ONLY:
-    default:
-      return {}
   }
 }
 

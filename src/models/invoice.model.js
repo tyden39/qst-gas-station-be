@@ -31,6 +31,13 @@ Invoice.init(
     },
     Logger_Time: {
       type: DataTypes.DATE,
+      validate: {
+        isDate(value) {
+          if (!(value instanceof Date) && isNaN(Date.parse(value))) {
+            throw new ValidationError('Logger_Time must be a valid date.');
+          }
+        }
+      }
     },
     Pump_ID: {
       type: DataTypes.INTEGER,
@@ -46,9 +53,23 @@ Invoice.init(
     },
     Start_Time: {
       type: DataTypes.DATE,
+      validate: {
+        isDate(value) {
+          if (!(value instanceof Date) && isNaN(Date.parse(value))) {
+            throw new ValidationError('Start_Time must be a valid date.');
+          }
+        }
+      }
     },
     End_Time: {
       type: DataTypes.DATE,
+      validate: {
+        isDate(value) {
+          if (!(value instanceof Date) && isNaN(Date.parse(value))) {
+            throw new ValidationError('End_Time must be a valid date.');
+          }
+        }
+      }
     },
     Unit_Price: {
       type: DataTypes.DECIMAL(9, 0),

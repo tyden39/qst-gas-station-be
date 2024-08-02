@@ -51,7 +51,7 @@ class InvoiceService {
         propName: "Logger_ID",
         value: data.Logger_ID,
       })
-    ).toJSON()
+    )?.toJSON()
 
     if (!logger)
       throw new BadRequestError(`Không tìm thấy Logger_ID #${data.Logger_ID}`)
@@ -63,22 +63,37 @@ class InvoiceService {
     const loggerTimeDate = moment(
       data.Logger_Time,
       "DD-MM-YYYY HH:mm:ss"
-    ).toDate()
+    )
     const startTimeDate = moment(
       data.Start_Time,
-      "DD-MM-YYYY HH:mm:ss"
-    ).toDate()
-    const endTimeDate = moment(data.End_Time, "DD-MM-YYYY HH:mm:ss").toDate()
+      "DD-MM-YYYY HH:mm:ss",
+      true
+    )
+
+    const endTimeDate = moment(data.End_Time, "DD-MM-YYYY HH:mm:ss")
+
+    if (loggerTimeDate.isValid()) {
+      throw new BadRequestError('Logger_Time: Sai format json')
+    }
+
+    if (startTimeDate.isValid()) {
+      throw new BadRequestError('Start_Time: Sai format json')
+    }
+
+    if (endTimeDate.isValid()) {
+      throw new BadRequestError('End_Time: Sai format json')
+    }
+
     try {
       const createdInvoice = await Invoice.create({
         ...data,
-        Logger_Time: loggerTimeDate,
-        Start_Time: startTimeDate,
-        End_Time: endTimeDate,
+        Logger_Time: loggerTimeDate.toDate(),
+        Start_Time: startTimeDate.toDate(),
+        End_Time: endTimeDate.toDate(),
       })
       return createdInvoice
     } catch (error) {
-      throw new ConflictRequestError(error.message)
+      throw new BadRequestError(error.message)
     }
   }
 
