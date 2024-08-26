@@ -26,8 +26,8 @@
     "sequelize": "^6.37.3",
     "ws": "^8.17.0"
   },
-  "packageManager": "yarn@4.2.2",
   "devDependencies": {
     "sequelize-cli": "^6.6.2"
-  }
+  },
+  "packageManager": "yarn@4.4.0"
 }

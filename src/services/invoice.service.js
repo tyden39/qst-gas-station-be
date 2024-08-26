@@ -26,6 +26,7 @@ const { authenticationCompany } = require("../auth/authUtils")
 
 class InvoiceService {
   static async createInvoice(data) {
+    const {companyId, storeId, branchId} = data
     const loggerTimeDate = moment(data.Logger_Time, moment.ISO_8601).toDate()
     const startTimeDate = moment(data.Start_Time, moment.ISO_8601).toDate()
     const endTimeDate = moment(data.End_Time, moment.ISO_8601).toDate()
@@ -36,7 +37,7 @@ class InvoiceService {
         Start_Time: startTimeDate,
         End_Time: endTimeDate,
       })
-      return createdInvoice
+      return {...createdInvoice.toJSON(), companyId, storeId, branchId}
     } catch (error) {
       throw new ConflictRequestError(error.message)
     }
