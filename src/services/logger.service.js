@@ -120,9 +120,9 @@ class LoggerService {
     return await Logger.create({ ...body, ...userStore })
   }
 
-  static findByPropertyName = async ({propName, value, keyStore, force}) => {
+  static findByPropertyName = async ({propName, value, keyStore}) => {
     const authUser = keyStore
-    const isAdmin = force ? true : authUser?.roles[0] === PERMISSION.ADMINISTRATOR
+    const isAdmin = authUser?.roles[0] === PERMISSION.ADMINISTRATOR
 
     let propValue
     switch (propName) {
@@ -302,12 +302,12 @@ class LoggerService {
     return await logger.update(editData)
   }
 
-  static async delete(id, force) {
-    const logger = await Logger.findByPk(id, { paranoid: !force })
+  static async delete(id) {
+    const logger = await Logger.findByPk(id)
     if (!logger) {
       throw new NotFoundError("Không tìm thấy logger cần xóa!")
     }
-    await logger.destroy({ force: Boolean(force) })
+    await logger.destroy()
   }
 
   static async restore(id) {

@@ -42,7 +42,7 @@ class StoreController {
   delete = async (req, res, next) => {
     new OK({
       message: 'Delete stores success!',
-      data: await StoreService.delete(req.params.id, req.body.force)
+      data: await StoreService.delete(req.params.id)
     }).send(res)
   }
 

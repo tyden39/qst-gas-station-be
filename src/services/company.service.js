@@ -164,12 +164,12 @@ class CompanyService {
     return await user.update(editUser)
   }
 
-  static async deleteOne(id, force) {
-    const company = await Company.findByPk(id, { paranoid: !force })
+  static async deleteOne(id) {
+    const company = await Company.findByPk(id)
     if (!company) {
       throw new NotFoundError(`Không tìm thấy công ty cần xóa!`)
     }
-    await company.destroy({ force: Boolean(force) })
+    await company.destroy()
   }
 
   static async restoreOne(id) {

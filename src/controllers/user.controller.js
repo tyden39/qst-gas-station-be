@@ -42,7 +42,7 @@ class UserController {
   deleteUser = async (req, res, next) => {
     new OK({
       message: 'Delete user success!',
-      data: await UserService.deleteUser(req.params.id, req.body.force)
+      data: await UserService.deleteUser(req.params.id)
     }).send(res)
   }
 

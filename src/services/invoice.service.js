@@ -48,7 +48,6 @@ class InvoiceService {
     const authCompany = await authenticationCompany(req)
     const logger = (
       await LoggerService.findByPropertyName({
-        force: true,
         propName: "Logger_ID",
         value: data.Logger_ID,
       })
@@ -67,21 +66,20 @@ class InvoiceService {
     )
     const startTimeDate = moment(
       data.Start_Time,
-      "DD-MM-YYYY HH:mm:ss",
-      true
+      "DD-MM-YYYY HH:mm:ss"
     )
 
     const endTimeDate = moment(data.End_Time, "DD-MM-YYYY HH:mm:ss")
 
-    if (loggerTimeDate.isValid()) {
+    if (!loggerTimeDate.isValid()) {
       throw new BadRequestError('Logger_Time: Sai format json')
     }
 
-    if (startTimeDate.isValid()) {
+    if (!startTimeDate.isValid()) {
       throw new BadRequestError('Start_Time: Sai format json')
     }
 
-    if (endTimeDate.isValid()) {
+    if (!endTimeDate.isValid()) {
       throw new BadRequestError('End_Time: Sai format json')
     }
 
@@ -319,13 +317,13 @@ class InvoiceService {
     return await invoice.update(data)
   }
 
-  static async deleteInvoice(id, force) {
-    const invoice = await Invoice.findByPk(id, { paranoid: !force })
+  static async deleteInvoice(id) {
+    const invoice = await Invoice.findByPk(id)
     if (!invoice) {
       throw new Error(`Không tìm thấy hóa đơn mã #${id}`)
     }
 
-    return await invoice.destroy({ force: Boolean(force) })
+    return await invoice.destroy()
   }
 
   static async deleteBulk(query) {
@@ -351,7 +349,6 @@ class InvoiceService {
           : {
               id: idFilter,
             },
-      force: Boolean(query.force),
     })
   }
 

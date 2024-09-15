@@ -41,7 +41,7 @@ class KeyTokenService {
   }
 
   static removeKeyById = async (id) => {
-    return await KeyToken.destroy({ where: { id }, force: true })
+    return await KeyToken.destroy({where: {id}})
   }
 }
 

@@ -221,12 +221,12 @@ class StoreService {
     return await store.update(editUser)
   }
 
-  static async delete(id, force) {
-    const store = await Store.findByPk(id, { paranoid: !force })
+  static async delete(id) {
+    const store = await Store.findByPk(id)
     if (!store) {
       throw new NotFoundError("Không tìm thấy cửa hàng cần xóa!")
     }
-    await Store.destroy({ where: { id }, force: Boolean(force) })
+    await store.destroy()
   }
 
   static async restore(id) {

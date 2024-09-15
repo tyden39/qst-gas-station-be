@@ -184,12 +184,12 @@ class BranchService {
     return await branch.update(editData)
   }
 
-  static async delete(id, force) {
-    const branch = await Branch.findByPk(id, { paranoid: !force })
+  static async delete(id) {
+    const branch = await Branch.findByPk(id)
     if (!branch) {
       throw new NotFoundError("Không tìm thấy chi nhánh cần xóa!")
     }
-    await branch.destroy({ force: Boolean(force) })
+    await branch.destroy()
   }
 
   static async restore(id) {

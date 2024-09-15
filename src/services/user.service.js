@@ -229,12 +229,12 @@ class UserService {
     return updatedUser
   }
 
-  static async deleteUser(id, force) {
-    const user = await User.findByPk(id, { paranoid: !force })
+  static async deleteUser(id) {
+    const user = await User.findByPk(id)
     if (!user) {
       throw new NotFoundError("Không tìm thấy người dùng")
     }
-    await user.destroy({ force: Boolean(force) })
+    await user.destroy()
   }
 
   static async restore(id) {
