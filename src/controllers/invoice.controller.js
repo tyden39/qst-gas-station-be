@@ -126,7 +126,7 @@ class InvoiceController {
         Unit_Price: formatNumber(Number(Unit_Price)),
         Total_Price: totalPrice,
         Fuel_Type: invoiceJson.Fuel_Type || '',
-        Logger_Time: moment(invoice.Logger_Time).format("DD-MM-YYYY"),
+        Logger_Time: moment(invoice.Logger_Time).format("DD-MM-YYYY HH:mm:ss"),
       }
       worksheet.addRow(invoiceDateFormated)
     })

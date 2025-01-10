@@ -277,6 +277,9 @@ class InvoiceService {
         },
       ],
     })
+    // const [invoices, meta] = await sequelize.query("SELECT * FROM `invoices` AS `Invoice` WHERE `Invoice`.`Logger_ID` IN ('01905951175', '01905962695', '01905954759', '01905958087', '01905957319', '01905966535', '01905956807', '123', '01905955015') ORDER BY `Invoice`.`createdAt` DESC LIMIT 1191222, 10;")
+    // const [result] = await sequelize.query("SELECT COUNT(1) AS count FROM invoices WHERE Logger_ID IN ('01905951175','01905962695','01905954759','01905958087','01905957319','01905966535','01905956807','123','01905955015');");
+    // const count = result[0].count;
 
     const totalPages = Math.ceil(count / pageSize)
 
